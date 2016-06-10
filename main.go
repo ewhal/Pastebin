@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"github.com/dchest/uniuri"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 func check(e error) {
@@ -11,15 +14,45 @@ func check(e error) {
 	}
 }
 
+func exists(location string) bool {
+	if _, err := os.Stat(location); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+
+}
+
+func generateName() string {
+	s := uniuri.NewLen(4)
+	return s
+
+}
+func save(buf []byte) string {
+	paste := buf[92 : len(buf)-46]
+	address := "localhost:8080/p/"
+
+	dir := "/tmp/"
+	s := generateName()
+	loc := dir + s
+
+	err := ioutil.WriteFile(loc, paste, 0644)
+	check(err)
+
+	url := address + s
+	return url
+}
+
 func pasteHandler(w http.ResponseWriter, req *http.Request) {
 	buf, _ := ioutil.ReadAll(req.Body)
-	paste := buf[89 : len(buf)-46]
-	err := ioutil.WriteFile("/tmp/dat1", paste, 0644)
-	check(err)
+	fmt.Fprintf(w, save(buf))
 }
 
 func main() {
 	http.HandleFunc("/", pasteHandler)
+	http.Handle("/p/", http.StripPrefix("/p/", http.FileServer(http.Dir("/tmp"))))
+
 	http.ListenAndServe(":8080", nil)
 
 }
