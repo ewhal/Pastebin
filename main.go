@@ -8,6 +8,9 @@ import (
 	"os"
 )
 
+var directory = "/tmp/"
+var address = "http://localhost:8080/p/"
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -26,16 +29,19 @@ func exists(location string) bool {
 
 func generateName() string {
 	s := uniuri.NewLen(4)
+	file := exists(directory + s)
+	if file == true {
+		generateName()
+	}
+
 	return s
 
 }
 func save(buf []byte) string {
 	paste := buf[92 : len(buf)-46]
-	address := "localhost:8080/p/"
 
-	dir := "/tmp/"
 	s := generateName()
-	loc := dir + s
+	loc := directory + s
 
 	err := ioutil.WriteFile(loc, paste, 0644)
 	check(err)
@@ -44,9 +50,17 @@ func save(buf []byte) string {
 	return url
 }
 
-func pasteHandler(w http.ResponseWriter, req *http.Request) {
-	buf, _ := ioutil.ReadAll(req.Body)
-	fmt.Fprintf(w, save(buf))
+func pasteHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		text := "$ <command> | curl -F 'paste=<-' " + address
+		fmt.Fprintf(w, text)
+	case "POST":
+		buf, _ := ioutil.ReadAll(r.Body)
+		fmt.Fprintf(w, save(buf))
+	case "DELETE":
+		// Remove the record.
+	}
 }
 
 func main() {
