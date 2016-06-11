@@ -66,7 +66,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			check(err)
 
 			if param2 != "" {
-				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,", "utf-8")
+				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 				io.WriteString(w, string(highlight))
 			} else {
 				io.WriteString(w, string(s))
