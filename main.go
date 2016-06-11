@@ -10,7 +10,7 @@ import (
 
 const (
 	directory = "/tmp/"
-	address   = "http://localhost:8080/p/"
+	address   = "http://localhost:8080/?"
 	length    = 4
 	text      = "$ <command> | curl -F 'paste=<-'" + address + "\n"
 )
@@ -56,7 +56,15 @@ func save(buf []byte) string {
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		io.WriteString(w, text)
+		param := r.URL.RawQuery
+		if param != "" {
+			d := directory + param
+			s, err := ioutil.ReadFile(d)
+			check(err)
+			io.WriteString(w, string(s))
+		} else {
+			io.WriteString(w, text)
+		}
 	case "POST":
 		buf, _ := ioutil.ReadAll(r.Body)
 		io.WriteString(w, address+save(buf)+"\n")
@@ -67,8 +75,6 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", pasteHandler)
-	http.Handle("/p/", http.StripPrefix("/p/", http.FileServer(http.Dir(directory))))
-
 	http.ListenAndServe(":8080", nil)
 
 }
