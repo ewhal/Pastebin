@@ -6,6 +6,3 @@ go:
 install:
   - github.com/dchest/uniuri
   - github.com/ewhal/pygments
-
-
-make
