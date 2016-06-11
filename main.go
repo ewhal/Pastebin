@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/dchest/uniuri"
 	"io"
 	"io/ioutil"
@@ -57,11 +56,10 @@ func save(buf []byte) string {
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		fmt.Fprintf(w, text)
+		io.WriteString(w, text)
 	case "POST":
 		buf, _ := ioutil.ReadAll(r.Body)
 		io.WriteString(w, address+save(buf)+"\n")
-
 	case "DELETE":
 		// Remove the record.
 	}
