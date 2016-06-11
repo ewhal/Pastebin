@@ -2,8 +2,8 @@
 Simple golang pastebin inspired by nnmm.nl.
 
 ##Build Instructions
-git clone https://github.com/ewhal/Pastebin
-go get 	github.com/dchest/uniuri
-go get 	github.com/ewhal/pygments
-make
+* git clone https://github.com/ewhal/Pastebin
+* go get 	github.com/dchest/uniuri
+* go get 	github.com/ewhal/pygments
+* make
  
