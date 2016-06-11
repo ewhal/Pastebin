@@ -66,7 +66,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, text)
 		}
 	case "POST":
-		buf, _ := ioutil.ReadAll(r.Body)
+		buf, err := ioutil.ReadAll(r.Body)
+		check(err)
 		io.WriteString(w, address+save(buf)+"\n")
 	case "DELETE":
 		// Remove the record.
@@ -75,6 +76,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", pasteHandler)
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	check(err)
 
 }
