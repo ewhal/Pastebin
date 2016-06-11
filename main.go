@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
 	"io"
@@ -17,9 +18,9 @@ const (
 	PORT      = ":8080"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
+func check(err error) {
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
@@ -63,11 +64,14 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		if param1 != "" {
 			d := DIRECTORY + param1
 			s, err := ioutil.ReadFile(d)
-			check(err)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+			}
 
 			if param2 != "" {
 				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 				io.WriteString(w, string(highlight))
+
 			} else {
 				io.WriteString(w, string(s))
 			}
@@ -76,7 +80,9 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "POST":
 		buf, err := ioutil.ReadAll(r.Body)
-		check(err)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		io.WriteString(w, ADDRESS+"?p="+save(buf)+"\n")
 	case "DELETE":
 		// Remove the record.
@@ -86,6 +92,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", pasteHandler)
 	err := http.ListenAndServe(PORT, nil)
-	check(err)
+	if err != nil {
+		panic(err)
+	}
 
 }
