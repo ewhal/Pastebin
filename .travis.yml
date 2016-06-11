@@ -4,5 +4,5 @@ go:
   - tip
 
 install:
-  - github.com/dchest/uniuri
-  - github.com/ewhal/pygments
+  - go get github.com/dchest/uniuri
+  - go get github.com/ewhal/pygments
