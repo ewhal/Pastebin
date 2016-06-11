@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - tip
+
+install:
+  - github.com/dchest/uniuri
+  - github.com/ewhal/pygments
+
+
+make
