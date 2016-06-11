@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/dchest/uniuri"
+	"github.com/ewhal/pygments"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,9 +11,9 @@ import (
 
 const (
 	DIRECTORY = "/tmp/"
-	ADDRESS   = "http://localhost:8080"
+	ADDRESS   = "http://localhost:8080/"
 	LENGTH    = 4
-	TEXT      = "$ <command> | curl -F 'paste=<-'" + ADDRESS + "\n"
+	TEXT      = "$ <command> | curl -F 'p=<-' lang='python'" + ADDRESS + "\n"
 	PORT      = ":8080"
 )
 
@@ -57,19 +58,26 @@ func save(raw []byte) string {
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		param := r.URL.RawQuery
-		if param != "" {
-			d := DIRECTORY + param
+		param1 := r.URL.Query().Get("p")
+		param2 := r.URL.Query().Get("lang")
+		if param1 != "" {
+			d := DIRECTORY + param1
 			s, err := ioutil.ReadFile(d)
 			check(err)
-			io.WriteString(w, string(s))
+
+			if param2 != "" {
+				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,", "utf-8")
+				io.WriteString(w, string(highlight))
+			} else {
+				io.WriteString(w, string(s))
+			}
 		} else {
 			io.WriteString(w, TEXT)
 		}
 	case "POST":
 		buf, err := ioutil.ReadAll(r.Body)
 		check(err)
-		io.WriteString(w, ADDRESS+"?"+save(buf)+"\n")
+		io.WriteString(w, ADDRESS+"?p="+save(buf)+"\n")
 	case "DELETE":
 		// Remove the record.
 	}
