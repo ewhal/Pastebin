@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	directory = "/tmp/"
-	address   = "http://localhost:8080/?"
-	length    = 4
-	text      = "$ <command> | curl -F 'paste=<-'" + address + "\n"
+	DIRECTORY = "/tmp/"
+	ADDRESS   = "http://localhost:8080"
+	LENGTH    = 4
+	TEXT      = "$ <command> | curl -F 'paste=<-'" + ADDRESS + "\n"
+	PORT      = ":8080"
 )
 
 func check(e error) {
@@ -32,8 +33,8 @@ func exists(location string) bool {
 }
 
 func generateName() string {
-	s := uniuri.NewLen(length)
-	file := exists(directory + s)
+	s := uniuri.NewLen(LENGTH)
+	file := exists(DIRECTORY + s)
 	if file == true {
 		generateName()
 	}
@@ -41,11 +42,11 @@ func generateName() string {
 	return s
 
 }
-func save(buf []byte) string {
-	paste := buf[92 : len(buf)-46]
+func save(raw []byte) string {
+	paste := raw[92 : len(raw)-46]
 
 	s := generateName()
-	location := directory + s
+	location := DIRECTORY + s
 
 	err := ioutil.WriteFile(location, paste, 0644)
 	check(err)
@@ -58,17 +59,17 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		param := r.URL.RawQuery
 		if param != "" {
-			d := directory + param
+			d := DIRECTORY + param
 			s, err := ioutil.ReadFile(d)
 			check(err)
 			io.WriteString(w, string(s))
 		} else {
-			io.WriteString(w, text)
+			io.WriteString(w, TEXT)
 		}
 	case "POST":
 		buf, err := ioutil.ReadAll(r.Body)
 		check(err)
-		io.WriteString(w, address+save(buf)+"\n")
+		io.WriteString(w, ADDRESS+"?"+save(buf)+"\n")
 	case "DELETE":
 		// Remove the record.
 	}
@@ -76,7 +77,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", pasteHandler)
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(PORT, nil)
 	check(err)
 
 }
