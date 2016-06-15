@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/dchest/uniuri"
+	"github.com/ewhal/pygments"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	"github.com/dchest/uniuri"
-	"github.com/ewhal/pygments"
 )
 
 const (
@@ -17,7 +16,6 @@ const (
 	LENGTH    = 4
 	TEXT      = "$ <command> | curl -F 'p=<-' lang='python'" + ADDRESS + "\n"
 	PORT      = ":8080"
-	SYNTAX    = false
 )
 
 func check(err error) {
@@ -70,12 +68,10 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), 500)
 			}
 
-			if SYNTAX == true {
-				if param2 != "" {
-					highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
-					io.WriteString(w, string(highlight))
+			if param2 != "" {
+				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+				io.WriteString(w, string(highlight))
 
-				}
 			} else {
 				io.WriteString(w, string(s))
 			}
