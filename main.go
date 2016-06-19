@@ -13,17 +13,23 @@ import (
 	"log"
 	"net/http"
 
+	"database/sql"
+
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
-	ADDRESS = "http://localhost:9900"
-	LENGTH  = 6
-	TEXT    = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
-	PORT    = ":9900"
+	ADDRESS  = "http://localhost:9900"
+	LENGTH   = 6
+	TEXT     = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
+	PORT     = ":9900"
+	USERNAME = ""
+	PASS     = ""
+	NAME     = ""
+	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
 
 type Response struct {
@@ -42,7 +48,7 @@ func check(err error) {
 
 func generateName() string {
 	s := uniuri.NewLen(LENGTH)
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
 	query, err := db.Query("select id from pastebin")
@@ -131,7 +137,8 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write(x)
 
 		default:
-			io.WriteString(w, values[2]+"\n")
+			io.WriteString(w, b.URL+"\n")
+			io.WriteString(w, "delete key: "+b.DELKEY+"\n")
 		}
 	}
 
