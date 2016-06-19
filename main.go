@@ -70,13 +70,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		var s string
 		err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
 		db.Close()
-		if err == sql.ErrNoRows {
-			io.WriteString(w, "Error invalid paste")
-		} else {
-			check(err)
-		}
+		check(err)
 
 		if param1 != "" {
+
+			if err == sql.ErrNoRows {
+				io.WriteString(w, "Error invalid paste")
+			}
 			if param2 != "" {
 				highlight := pygments.Highlight(html.UnescapeString(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 				io.WriteString(w, highlight)
