@@ -104,9 +104,26 @@ func save(raw []byte) []string {
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
-	/*	vars := mux.Vars(r)
-		paste := vars["pasteId"]
-		delkey := vars["delKey"] */
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	delkey := vars["delKey"]
+
+	db, err := sql.Open("mysql", DATABASE)
+	check(err)
+
+	stmt, err := db.Prepare("delete from pastebin where delkey=? id=?")
+	check(err)
+
+	res, err := stmt.Exec(html.EscapeString(delkey), html.EscapeString(paste))
+	check(err)
+
+	affect, err := res.RowsAffected()
+	check(err)
+
+	io.WriteString(w, string(affect))
+
+	db.Close()
+
 }
 func saveHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -164,7 +181,7 @@ func langHandler(w http.ResponseWriter, r *http.Request) {
 	paste := vars["pasteId"]
 	lang := vars["lang"]
 	s := getPaste(paste)
-	highlight := pygments.Highlight(html.UnescapeString(s), lang, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+	highlight := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 	io.WriteString(w, highlight)
 
 }
