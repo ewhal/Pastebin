@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/sha1"
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"html"
 	"io"
@@ -9,10 +12,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
+	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -22,6 +24,14 @@ const (
 	TEXT    = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
 	PORT    = ":9900"
 )
+
+type Response struct {
+	ID     string `json:"id"`
+	HASH   string `json:"hash"`
+	URL    string `json:"url"`
+	SIZE   int    `json:"size"`
+	DELKEY string `json:"delkey"`
+}
 
 func check(err error) {
 	if err != nil {
@@ -50,29 +60,69 @@ func generateName() string {
 	return s
 
 }
-func save(raw []byte) string {
-	paste := raw[86 : len(raw)-46]
-
-	s := generateName()
-	db, err := sql.Open("sqlite3", "./database.db")
-	check(err)
-	stmt, err := db.Prepare("INSERT INTO pastebin(id, hash, data, delkey) values(?,?,?,?)")
-	_, err = stmt.Exec(s, html.EscapeString(string(paste)))
-	check(err)
-	db.Close()
-
-	return s
+func hash(paste []byte) string {
+	hasher := sha1.New()
+	hasher.Write(paste)
+	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	return sha
 }
 
+func save(raw []byte) []string {
+	p := raw[86 : len(raw)-46]
+
+	db, err := sql.Open("sqlite3", "./database.db")
+	check(err)
+
+	sha := hash(p)
+	id := generateName()
+	url := ADDRESS + "/p/" + id
+	delKey := uniuri.NewLen(40)
+	paste := html.EscapeString(string(p))
+
+	stmt, err := db.Prepare("INSERT INTO pastebin(id, hash, data, delkey) values(?,?,?,?)")
+	check(err)
+	_, err = stmt.Exec(id, sha, paste, delKey)
+	check(err)
+	db.Close()
+	return []string{id, sha, url, paste, delKey}
+
+}
+
+func delHandler(w http.ResponseWriter, r *http.Request) {
+}
 func saveHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	output := vars["output"]
 	switch r.Method {
 	case "POST":
 		buf, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
-		name := save(buf)
-		io.WriteString(w, ADDRESS+"/p/"+name+"\n")
+
+		values := save(buf)
+
+		switch output {
+		case "json":
+			b := &Response{
+				ID:     values[0],
+				HASH:   values[1],
+				URL:    values[2],
+				SIZE:   len(values[3]),
+				DELKEY: values[4],
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			err := json.NewEncoder(w).Encode(b)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+		default:
+			io.WriteString(w, values[2]+"\n")
+		}
 	}
 
 }
@@ -120,7 +170,8 @@ func main() {
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
-	router.HandleFunc("/save", saveHandler)
+	router.HandleFunc("/save/{output}", saveHandler)
+	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {
 		log.Fatal(err)
