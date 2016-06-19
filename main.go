@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"html"
 	"io"
@@ -101,16 +102,16 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		values := save(buf)
+		b := &Response{
+			ID:     values[0],
+			HASH:   values[1],
+			URL:    values[2],
+			SIZE:   len(values[3]),
+			DELKEY: values[4],
+		}
 
 		switch output {
 		case "json":
-			b := &Response{
-				ID:     values[0],
-				HASH:   values[1],
-				URL:    values[2],
-				SIZE:   len(values[3]),
-				DELKEY: values[4],
-			}
 
 			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(b)
@@ -119,6 +120,15 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+		case "xml":
+			x, err := xml.MarshalIndent(b, "", "  ")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
 
 		default:
 			io.WriteString(w, values[2]+"\n")
