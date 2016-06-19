@@ -69,8 +69,12 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		db, err := sql.Open("sqlite3", "./database.db")
 		var s string
 		err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
-		check(err)
 		db.Close()
+		if err == sql.ErrNoRows {
+			io.WriteString(w, "Error invalid paste")
+		} else {
+			check(err)
+		}
 
 		if param1 != "" {
 			if param2 != "" {
