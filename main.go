@@ -13,10 +13,10 @@ import (
 
 const (
 	DIRECTORY = "/tmp/"
-	ADDRESS   = "http://localhost:8080/"
+	ADDRESS   = "https://p.pantsu.cat/"
 	LENGTH    = 4
-	TEXT      = "$ <command> | curl -F 'p=<-' lang='python'" + ADDRESS + "\n"
-	PORT      = ":8080"
+	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
+	PORT      = ":9900"
 )
 
 func check(err error) {
