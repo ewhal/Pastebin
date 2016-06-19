@@ -79,6 +79,15 @@ func save(raw []byte) []string {
 	check(err)
 
 	sha := hash(p)
+	query, err := db.Query("select id, hash, paste, delkey from pastebin")
+	for query.Next() {
+		var id, hash, paste, delkey string
+		err := query.Scan(&id, hash, paste, delkey)
+		check(err)
+		if hash == sha {
+			return []string{id, hash, paste, delkey}
+		}
+	}
 	id := generateName()
 	url := ADDRESS + "/p/" + id
 	delKey := uniuri.NewLen(40)
@@ -94,6 +103,9 @@ func save(raw []byte) []string {
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
+	/*	vars := mux.Vars(r)
+		paste := vars["pasteId"]
+		delkey := vars["delKey"] */
 }
 func saveHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
