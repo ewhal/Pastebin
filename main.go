@@ -1,22 +1,23 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"html"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
-	DIRECTORY = "/tmp/"
-	ADDRESS   = "https://p.pantsu.cat/"
-	LENGTH    = 4
-	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
-	PORT      = ":9900"
+	ADDRESS = "https://p.pantsu.cat/"
+	LENGTH  = 6
+	TEXT    = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
+	PORT    = ":9900"
 )
 
 func check(err error) {
@@ -25,34 +26,37 @@ func check(err error) {
 	}
 }
 
-func exists(location string) bool {
-	if _, err := os.Stat(location); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
-
-}
-
 func generateName() string {
 	s := uniuri.NewLen(LENGTH)
-	file := exists(DIRECTORY + s)
-	if file == true {
-		generateName()
+	db, err := sql.Open("sqlite3", "./database.db")
+	check(err)
+
+	query, err := db.Query("select id from pastebin")
+	for query.Next() {
+		var id string
+		err := query.Scan(&id)
+		if err != nil {
+
+		}
+		if id == s {
+			generateName()
+		}
 	}
+	db.Close()
 
 	return s
 
 }
 func save(raw []byte) string {
-	paste := raw[85 : len(raw)-46]
+	paste := raw[86 : len(raw)-46]
 
 	s := generateName()
-	location := DIRECTORY + s
-
-	err := ioutil.WriteFile(location, paste, 0644)
+	db, err := sql.Open("sqlite3", "./database.db")
 	check(err)
+	stmt, err := db.Prepare("INSERT INTO pastebin(id, data) values(?,?)")
+	_, err = stmt.Exec(s, html.EscapeString(string(paste)))
+	check(err)
+	db.Close()
 
 	return s
 }
@@ -60,21 +64,21 @@ func save(raw []byte) string {
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		param1 := r.URL.Query().Get("p")
-		param2 := r.URL.Query().Get("lang")
-		if param1 != "" {
-			d := DIRECTORY + param1
-			s, err := ioutil.ReadFile(d)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-			}
+		param1 := html.EscapeString(r.URL.Query().Get("p"))
+		param2 := html.EscapeString(r.URL.Query().Get("lang"))
+		db, err := sql.Open("sqlite3", "./database.db")
+		var s string
+		err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
+		check(err)
+		db.Close()
 
+		if param1 != "" {
 			if param2 != "" {
-				highlight := pygments.Highlight(string(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
-				io.WriteString(w, string(highlight))
+				highlight := pygments.Highlight(html.UnescapeString(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+				io.WriteString(w, highlight)
 
 			} else {
-				io.WriteString(w, string(s))
+				io.WriteString(w, html.UnescapeString(s))
 			}
 		} else {
 			io.WriteString(w, TEXT)
@@ -84,7 +88,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
-		io.WriteString(w, ADDRESS+"?p="+save(buf)+"\n")
+		name := save(buf)
+		io.WriteString(w, ADDRESS+"?p="+name+"\n")
 	case "DELETE":
 		// Remove the record.
 	}
