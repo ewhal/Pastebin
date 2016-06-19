@@ -6,7 +6,10 @@ import (
 	"html"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
@@ -14,7 +17,7 @@ import (
 )
 
 const (
-	ADDRESS = "https://p.pantsu.cat/"
+	ADDRESS = "http://localhost:9900"
 	LENGTH  = 6
 	TEXT    = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n"
 	PORT    = ":9900"
@@ -53,7 +56,7 @@ func save(raw []byte) string {
 	s := generateName()
 	db, err := sql.Open("sqlite3", "./database.db")
 	check(err)
-	stmt, err := db.Prepare("INSERT INTO pastebin(id, data) values(?,?)")
+	stmt, err := db.Prepare("INSERT INTO pastebin(id, hash, data, delkey) values(?,?,?,?)")
 	_, err = stmt.Exec(s, html.EscapeString(string(paste)))
 	check(err)
 	db.Close()
@@ -61,49 +64,66 @@ func save(raw []byte) string {
 	return s
 }
 
-func pasteHandler(w http.ResponseWriter, r *http.Request) {
+func saveHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
-		param1 := html.EscapeString(r.URL.Query().Get("p"))
-		param2 := html.EscapeString(r.URL.Query().Get("lang"))
-		db, err := sql.Open("sqlite3", "./database.db")
-		var s string
-		err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
-		db.Close()
-		check(err)
-
-		if param1 != "" {
-
-			if err == sql.ErrNoRows {
-				io.WriteString(w, "Error invalid paste")
-			}
-			if param2 != "" {
-				highlight := pygments.Highlight(html.UnescapeString(s), param2, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
-				io.WriteString(w, highlight)
-
-			} else {
-				io.WriteString(w, html.UnescapeString(s))
-			}
-		} else {
-			io.WriteString(w, TEXT)
-		}
 	case "POST":
 		buf, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
 		name := save(buf)
-		io.WriteString(w, ADDRESS+"?p="+name+"\n")
-	case "DELETE":
-		// Remove the record.
+		io.WriteString(w, ADDRESS+"/p/"+name+"\n")
 	}
+
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, TEXT)
+}
+func langHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	lang := vars["lang"]
+	s := getPaste(paste)
+	highlight := pygments.Highlight(html.UnescapeString(s), lang, "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+	io.WriteString(w, highlight)
+
+}
+
+func getPaste(paste string) string {
+	param1 := html.EscapeString(paste)
+	db, err := sql.Open("sqlite3", "./database.db")
+	var s string
+	err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
+	db.Close()
+	check(err)
+
+	if err == sql.ErrNoRows {
+		return "Error invalid paste"
+	} else {
+		return html.UnescapeString(s)
+	}
+
+}
+func pasteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	s := getPaste(paste)
+	io.WriteString(w, s)
+
 }
 
 func main() {
-	http.HandleFunc("/", pasteHandler)
-	err := http.ListenAndServe(PORT, nil)
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", rootHandler)
+	router.HandleFunc("/p/{pasteId}", pasteHandler)
+	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
+	router.HandleFunc("/save", saveHandler)
+	router.HandleFunc("/save", saveHandler)
+	err := http.ListenAndServe(PORT, router)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 }
