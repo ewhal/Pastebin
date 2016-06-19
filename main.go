@@ -81,11 +81,12 @@ func save(raw []byte) []string {
 	sha := hash(p)
 	query, err := db.Query("select id, hash, data, delkey from pastebin")
 	for query.Next() {
+		url := ADDRESS + "/p/" + id
 		var id, hash, paste, delkey string
 		err := query.Scan(&id, &hash, &paste, &delkey)
 		check(err)
 		if hash == sha {
-			return []string{id, hash, paste, delkey}
+			return []string{id, hash, url paste, delkey}
 		}
 	}
 	id := generateName()
