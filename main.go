@@ -79,7 +79,7 @@ func save(raw []byte) []string {
 	check(err)
 
 	sha := hash(p)
-	query, err := db.Query("select id, hash, paste, delkey from pastebin")
+	query, err := db.Query("select id, hash, data, delkey from pastebin")
 	for query.Next() {
 		var id, hash, paste, delkey string
 		err := query.Scan(&id, hash, paste, delkey)
