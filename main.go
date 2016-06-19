@@ -22,7 +22,7 @@ import (
 const (
 	ADDRESS   = "http://localhost:9900"
 	LENGTH    = 6
-	DELETE    = ADDRESS + "/{PASTE}/{DELKEY}"
+	DELETE    = ADDRESS + "/{PASTE}/{DELKEY}\n"
 	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
 	URLARGS   = ADDRESS + "/save/XML|JSON\n"
 	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
