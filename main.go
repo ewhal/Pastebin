@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/dchest/uniuri"
-	"github.com/ewhal/pygments"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/dchest/uniuri"
+	"github.com/ewhal/pygments"
 )
 
 const (
@@ -45,7 +46,7 @@ func generateName() string {
 
 }
 func save(raw []byte) string {
-	paste := raw[92 : len(raw)-46]
+	paste := raw[85 : len(raw)-46]
 
 	s := generateName()
 	location := DIRECTORY + s
