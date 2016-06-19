@@ -86,7 +86,7 @@ func save(raw []byte) []string {
 		err := query.Scan(&id, &hash, &paste, &delkey)
 		check(err)
 		if hash == sha {
-			return []string{id, hash, url paste, delkey}
+			return []string{id, hash, url, paste, delkey}
 		}
 	}
 	id := generateName()
