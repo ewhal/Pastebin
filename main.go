@@ -23,7 +23,7 @@ const (
 	ADDRESS   = "http://localhost:9900"
 	LENGTH    = 6
 	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
-	URLARGS   = ADDRESS + "save/XML|JSON\n"
+	URLARGS   = ADDRESS + "/save/XML|JSON\n"
 	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
 	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n" + PASTEARGS + URLARGS + SOURCE
 	PORT      = ":9900"
