@@ -13,8 +13,6 @@ import (
 	"log"
 	"net/http"
 
-	"database/sql"
-
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
 	_ "github.com/go-sql-driver/mysql"
