@@ -77,7 +77,7 @@ func hash(paste []byte) string {
 func save(raw []byte) []string {
 	p := raw[86 : len(raw)-46]
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
 	sha := hash(p)
@@ -160,7 +160,7 @@ func langHandler(w http.ResponseWriter, r *http.Request) {
 
 func getPaste(paste string) string {
 	param1 := html.EscapeString(paste)
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("mysql", DATABASE)
 	var s string
 	err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
 	db.Close()
