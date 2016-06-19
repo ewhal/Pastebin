@@ -22,10 +22,11 @@ import (
 const (
 	ADDRESS   = "http://localhost:9900"
 	LENGTH    = 6
+	DELETE    = ADDRESS + "/{PASTE}/{DELKEY}"
 	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
 	URLARGS   = ADDRESS + "/save/XML|JSON\n"
 	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
-	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n" + PASTEARGS + URLARGS + SOURCE
+	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n" + PASTEARGS + URLARGS + DELETE + SOURCE
 	PORT      = ":9900"
 	USERNAME  = ""
 	PASS      = ""
