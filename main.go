@@ -26,7 +26,7 @@ const (
 	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
 	URLARGS   = ADDRESS + "/save/XML|JSON\n"
 	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
-	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "\n" + PASTEARGS + URLARGS + DELETE + SOURCE
+	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "/save" + "\n" + PASTEARGS + URLARGS + DELETE + SOURCE
 	PORT      = ":9900"
 	USERNAME  = ""
 	PASS      = ""
