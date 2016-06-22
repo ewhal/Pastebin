@@ -185,7 +185,11 @@ func langHandler(w http.ResponseWriter, r *http.Request) {
 	paste := vars["pasteId"]
 	lang := vars["lang"]
 	s := getPaste(paste)
-	highlight := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+	highlight, err := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	io.WriteString(w, highlight)
 
 }
