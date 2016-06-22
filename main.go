@@ -22,7 +22,7 @@ import (
 const (
 	ADDRESS   = "http://localhost:9900"
 	LENGTH    = 6
-	DELETE    = ADDRESS + "/{PASTE}/{DELKEY}\n"
+	DELETE    = ADDRESS + "/del/{PASTE}/{DELKEY}\n"
 	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
 	URLARGS   = ADDRESS + "/save/XML|JSON\n"
 	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
@@ -221,7 +221,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", rootHandler)
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
-	router.HandleFunc("/p/{pasteId}.{lang}", langHandler)
+	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
