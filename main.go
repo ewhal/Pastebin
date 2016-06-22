@@ -217,7 +217,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", rootHandler)
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
-	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
+	router.HandleFunc("/p/{pasteId}.{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
