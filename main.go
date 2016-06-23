@@ -226,7 +226,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		Title: paste,
 		Body:  []byte(s),
 	}
-	t, err := template.ParseFiles("assets/edit.html")
+	t, err := template.ParseFiles("assets/paste.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
