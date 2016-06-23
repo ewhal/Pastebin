@@ -29,6 +29,10 @@
 			<div class="page-header">
 				<h1>{{.Title}}</h1>
 			</div>
+			<div class="pull-right">
+				<button type="submit" href="{{.Link}}" class="btn btn-raised btn-primary">Raw<div class="ripple-container"></div></button>
+			
+			</div>
 			<div class="well" style="padding-top: 10px;">
 				<div class="form-group is-empty" style="margin-top: 0px;">
 					<textarea class="form-control" rows="20" id="textArea">{{printf "%s" .Body}}</textarea>

@@ -40,6 +40,7 @@ type Response struct {
 type Page struct {
 	Title string
 	Body  []byte
+	Link  string
 }
 
 func check(err error) {
@@ -228,6 +229,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{
 		Title: paste,
 		Body:  []byte(s),
+		Link: ADDRESS + "/raw/" + paste
 	}
 	t, err := template.ParseFiles("assets/paste.html")
 	if err != nil {
