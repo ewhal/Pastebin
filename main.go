@@ -210,9 +210,13 @@ func getPaste(paste string) string {
 
 }
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s := getPaste(paste)
+	w.Header().Set("Content-Type", "plain/text")
 	io.WriteString(w, s)
 
 }
@@ -220,6 +224,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
+	router.HandleFunc("/raw/{pasteId}", rawHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
