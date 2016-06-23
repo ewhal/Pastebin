@@ -24,10 +24,20 @@
 		<![endif]-->
 	</head>
 	<body>
-		<form action="/save" method="post">
-			<input type="text" name="p">
-			<input type="submit" value="paste">
-		</form>
+		<div class="container-fluid">
+			<form action="/save" method="post" class="form-horizontal">
+				<fieldset>
+					<legend>Pantsu Paste</legend>
+					<div class="form-group is-empty">
+						<label for="textArea" class="col-md-2 control-label">Paste</label>
+						<div class="col-md-10">
+							<textarea class="form-control" rows="10" id="textArea" name="p"></textarea>
+						</div>
+					</div>
+				</div>
+				<input type="submit" class="btn btn-raised btn-primary" value="paste">
+			</form>
+		</div>
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
