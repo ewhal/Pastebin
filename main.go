@@ -19,18 +19,13 @@ import (
 )
 
 const (
-	ADDRESS   = "http://localhost:9900"
-	LENGTH    = 6
-	DELETE    = ADDRESS + "/del/{PASTE}/{DELKEY}\n"
-	PASTEARGS = ADDRESS + "/p/{PASTE}/(python|language)\n"
-	URLARGS   = ADDRESS + "/save/XML|JSON\n"
-	SOURCE    = "Source: https://github.com/ewhal/Pastebin\n"
-	TEXT      = "$ <command> | curl -F 'p=<-' " + ADDRESS + "/save" + "\n" + PASTEARGS + URLARGS + DELETE + SOURCE
-	PORT      = ":9900"
-	USERNAME  = ""
-	PASS      = ""
-	NAME      = ""
-	DATABASE  = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
+	ADDRESS  = "http://localhost:9900"
+	LENGTH   = 6
+	PORT     = ":9900"
+	USERNAME = ""
+	PASS     = ""
+	NAME     = ""
+	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
 
 type Response struct {
@@ -169,6 +164,13 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 			w.Header().Set("Content-Type", "application/xml")
 			w.Write(x)
+		case "html":
+			w.Header().Set("Content-Type", "text/html")
+			io.WriteString(w, "<p>ID</p><p>"+b.ID+"</p><br/>")
+			io.WriteString(w, "<p>hash</p><p>"+b.HASH+"</p><br/>")
+			io.WriteString(w, "<p>URL</p><a href='"+b.URL+"'>"+b.URL+"</a><br/>")
+			io.WriteString(w, "<p>hash</p><p>"+b.SIZE+"</p><br/>")
+			io.WriteString(w, "<a href='"+b.URL+"/p/"+b.DELKEY+"'>"+b.DELKEY+"</a>")
 
 		default:
 			io.WriteString(w, b.URL+"\n")
