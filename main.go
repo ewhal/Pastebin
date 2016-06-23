@@ -41,7 +41,8 @@ type Response struct {
 type Page struct {
 	Title string
 	Body  []byte
-	Link  string
+	Raw   string
+	Home  string
 }
 
 func check(err error) {
