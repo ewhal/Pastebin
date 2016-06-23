@@ -178,6 +178,9 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, "<p><b>URL</b>: <a href='"+b.URL+"'>"+b.URL+"</a></p>")
 			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+ADDRESS+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
 
+		case "redirect":
+			http.Redirect(w, r, b.URL, 301)
+
 		default:
 			w.Header().Set("Content-Type", "plain/text")
 			io.WriteString(w, b.URL+"\n")
