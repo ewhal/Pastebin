@@ -10,6 +10,7 @@ import (
 	"html"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -212,7 +213,14 @@ func getPaste(paste string, lang string) string {
 	if err == sql.ErrNoRows {
 		return "Error invalid paste"
 	} else {
-		return html.UnescapeString(s)
+		if lang == "" {
+			return html.UnescapeString(s)
+		} else {
+			high, err := highlight(s, lang)
+			check(err)
+			return high
+
+		}
 	}
 
 }
@@ -223,16 +231,24 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	lang := vars["lang"]
 	s := getPaste(paste, lang)
 	link := ADDRESS + "/raw/" + paste
-	p := &Page{
-		Title: paste,
-		Body:  []byte(s),
-		Link:  link,
+	if lang == "" {
+		p := &Page{
+			Title: paste,
+			Body:  []byte(s),
+			Link:  link,
+		}
+		t, err := template.ParseFiles("assets/paste.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		t.Execute(w, p)
+
+	} else {
+		dat, err := ioutil.ReadFile("assets/syntax.html")
+		check(err)
+		fmt.Fprintf(w, string(dat), paste, paste, highlight, link)
+
 	}
-	t, err := template.ParseFiles("assets/paste.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	t.Execute(w, p)
 }
 
 func rawHandler(w http.ResponseWriter, r *http.Request) {
