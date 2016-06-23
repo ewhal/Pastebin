@@ -238,7 +238,6 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s := getPaste(paste)
-	w.Header().Set("Content-Type", "plain/text")
 	io.WriteString(w, s)
 
 }
