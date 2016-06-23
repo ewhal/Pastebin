@@ -39,7 +39,7 @@ type Response struct {
 
 type Page struct {
 	Title string
-	Body  string
+	Body  []byte
 	Link  string
 }
 
@@ -231,7 +231,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	link := ADDRESS + "/raw/" + paste
 	p := &Page{
 		Title: paste,
-		Body:  s,
+		Body:  []byte(s),
 		Link:  link,
 	}
 	t, err := template.ParseFiles("assets/paste.html")
