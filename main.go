@@ -193,7 +193,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func highlight(s string, lang string) (string, error) {
 
-	highlight, err := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
+	highlight, err := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 	if err != nil {
 		return "", err
 	}
