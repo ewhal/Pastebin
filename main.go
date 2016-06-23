@@ -118,7 +118,7 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := stmt.Exec(html.EscapeString(delkey))
 	check(err)
 
-	affect, err := res.RowsAffected()
+	_, err := res.RowsAffected()
 	if err == sql.ErrNoRows {
 		io.WriteString(w, "Error invalid paste")
 	} else {
