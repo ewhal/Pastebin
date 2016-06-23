@@ -220,9 +220,7 @@ func main() {
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
-	router.PathPrefix("/css").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/css/"))))
-	router.PathPrefix("/js").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/js/"))))
-	router.PathPrefix("/fonts").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/fonts/"))))
+	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir("assets"))))
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {
 		log.Fatal(err)
