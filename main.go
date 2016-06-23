@@ -213,13 +213,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
-	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
+	router := mux.NewRouter()
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {
 		log.Fatal(err)
