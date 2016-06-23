@@ -92,10 +92,11 @@ func save(raw string, lang string) []string {
 		}
 	}
 	id := generateName()
+	var url string
 	if lang == "" {
-		url := ADDRESS + "/p/" + id
+		url = ADDRESS + "/p/" + id
 	} else {
-		url := ADDRESS + "/p/" + id + "/" + lang
+		url = ADDRESS + "/p/" + id + "/" + lang
 	}
 	delKey := uniuri.NewLen(40)
 	paste := html.EscapeString(raw)
