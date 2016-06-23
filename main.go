@@ -119,10 +119,11 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	check(err)
 
 	affect, err := res.RowsAffected()
-	check(err)
-
-	io.WriteString(w, string(affect))
-
+	if err == sql.ErrNoRows {
+		io.WriteString(w, "Error invalid paste")
+	} else {
+		io.WriteString(w, paste+" deleted")
+	}
 	db.Close()
 
 }
