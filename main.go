@@ -174,9 +174,6 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, TEXT)
-}
 func langHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -217,7 +214,6 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", rootHandler)
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
 	router.HandleFunc("/save", saveHandler)
