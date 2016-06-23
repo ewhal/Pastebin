@@ -136,6 +136,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		lang := r.FormValue("lang")
 		if paste == "" {
 			http.Error(w, "Empty paste", 500)
+			return
 		}
 		values := save(paste, lang)
 		b := &Response{
