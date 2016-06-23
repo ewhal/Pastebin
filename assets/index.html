@@ -31,9 +31,11 @@
 			</div>
 			<form action="/save" method="post" class="form-horizontal">
 				<fieldset>
-					<div class="form-group is-empty">
-						<textarea class="form-control" rows="10" id="textArea" name="p"></textarea>
-						<span class="help-block">Paste your text here</span>
+					<div class="well">
+						<div class="form-group is-empty">
+							<textarea class="form-control" rows="10" id="textArea" name="p"></textarea>
+							<span class="help-block">Paste your text here</span>
+						</div>
 					</div>
 					<div class="form-group">
 						<div class="col-md-6">
@@ -448,10 +450,10 @@
 				</fieldset>
 			</form>
 			<div class="well">
-				<code>$ &lt;command&gt; | curl -F 'p=&lt;-' https://p.pantsu.cat/save</code>
-				<code>https://p.pantsu.cat/save/(XML|JSON)</code>
-				<code>https://p.pantsu.cat/p/(PASTE)/(lang)</code>
-				<code>https://p.pantsu.cat/del/(PASTE)/(DELKEY)</code>
+				<code>$ &lt;command&gt; | curl -F 'p=&lt;-' https://p.pantsu.cat/save</code><br/>
+				<code>https://p.pantsu.cat/save/(XML|JSON)</code><br/>
+				<code>https://p.pantsu.cat/p/(PASTE)/(lang)</code><br/>
+				<code>https://p.pantsu.cat/del/(PASTE)/(DELKEY)</code<br/>
 				<p>Source: <a href="https://github.com/ewhal/Pastebin">Pastebin</a></p>
 			</div>
 		</div>
