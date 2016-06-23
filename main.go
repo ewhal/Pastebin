@@ -218,8 +218,6 @@ func getPaste(paste string) string {
 
 }
 
-var templates = template.Must(template.ParseFiles("assets/paste.html"))
-
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
@@ -228,10 +226,11 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		Title: paste,
 		Body:  []byte(s),
 	}
-	err := templates.ExecuteTemplate(w, "assets/paste.html", p)
+	t, err := template.ParseFiles("assets/edit.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	t.Execute(w, p)
 }
 
 func rawHandler(w http.ResponseWriter, r *http.Request) {
