@@ -266,6 +266,8 @@ func main() {
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/raw/{pasteId}", rawHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", pasteHandler)
+	router.HandleFunc("/{clone}/{pasteId}", cloneHandler)
+	router.HandleFunc("/{download}/{pasteId}", downloadHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
