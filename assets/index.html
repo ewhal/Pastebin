@@ -29,10 +29,30 @@
 			<div class="page-header">
 				<h1>Pantsu Paste</h1>
 			</div>
-			<form action="/save" method="post" class="form-horizontal">
-				<textarea class="form-control" rows="10" id="textArea" name="p"></textarea>
-				<button type="submit" class="btn btn-raised btn-primary" value="paste"></button>
-			</form>
+			<div class="well bs-component">
+				<fieldset>
+					<form action="/save" method="post" class="form-horizontal">
+						<div class="form-group is-empty">
+							<textarea class="form-control" rows="10" id="textArea" name="p"></textarea>
+							<span class="help-block">Paste your text here</span>
+						</div>
+						<div class="col-md-offset-2">
+							<div class="form-group">
+								<label for="syntax" class="col-md-2 control-label">Select</label>
+								<select id="syntax" class="form-control">
+									<option>1</option>
+									<option>2</option>
+									<option>3</option>
+									<option>4</option>
+									<option>5</option>
+								</select>
+								<button type="submit" class="btn btn-raised btn-primary">Submit<div class="ripple-container"></div></button>
+
+							</div>
+						</div>
+					</form>
+				</fieldset>
+			</div>
 		</div>
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
