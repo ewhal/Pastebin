@@ -76,7 +76,7 @@ func hash(paste string) string {
 	return sha
 }
 
-func save(raw string) []string {
+func save(raw string, lang string) []string {
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
@@ -92,7 +92,11 @@ func save(raw string) []string {
 		}
 	}
 	id := generateName()
-	url := ADDRESS + "/p/" + id
+	if lang == "" {
+		url := ADDRESS + "/p/" + id
+	} else {
+		url := ADDRESS + "/p/" + id + "/" lang
+	}
 	delKey := uniuri.NewLen(40)
 	paste := html.EscapeString(raw)
 
@@ -102,7 +106,6 @@ func save(raw string) []string {
 	check(err)
 	db.Close()
 	return []string{id, sha, url, paste, delKey}
-
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,11 +136,11 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		paste := r.FormValue("p")
+		lang := r.FormValue("lang")
 		if paste == "" {
 			http.Error(w, "Empty paste", 500)
 		}
-
-		values := save(paste)
+		values := save(paste, lang)
 		b := &Response{
 			ID:     values[0],
 			HASH:   values[1],
