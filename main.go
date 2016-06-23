@@ -226,10 +226,11 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s := getPaste(paste)
+	link := ADDRESS + "/raw/" + paste
 	p := &Page{
 		Title: paste,
 		Body:  []byte(s),
-		Link: ADDRESS + "/raw/" + paste
+		Link:  link,
 	}
 	t, err := template.ParseFiles("assets/paste.html")
 	if err != nil {
