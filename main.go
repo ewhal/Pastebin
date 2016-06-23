@@ -167,7 +167,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		case "html":
 			w.Header().Set("Content-Type", "text/html")
 			io.WriteString(w, "<p><b>URL</b>: <a href='"+b.URL+"'>"+b.URL+"</a></p>")
-			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+ADDRESS+"/del/"+b.ID+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
+			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+ADDRESS+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
 
 		default:
 			io.WriteString(w, b.URL+"\n")
