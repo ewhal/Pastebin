@@ -191,22 +191,17 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func langHandler(w http.ResponseWriter, r *http.Request) {
+func highlight(s string, lang string) (string, error) {
 
-	vars := mux.Vars(r)
-	paste := vars["pasteId"]
-	lang := vars["lang"]
-	s := getPaste(paste)
 	highlight, err := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "full, style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,", "utf-8")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return "", err
 	}
-	io.WriteString(w, highlight)
+	return highlight, nil
 
 }
 
-func getPaste(paste string) string {
+func getPaste(paste string, lang string) string {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
 	var s string
@@ -217,7 +212,13 @@ func getPaste(paste string) string {
 	if err == sql.ErrNoRows {
 		return "Error invalid paste"
 	} else {
-		return html.UnescapeString(s)
+		if lang == "" {
+			return html.UnescapeString(s)
+		} else {
+			lang, err := highlight(s, lang)
+			check(err)
+			return lang
+		}
 	}
 
 }
@@ -225,7 +226,8 @@ func getPaste(paste string) string {
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
-	s := getPaste(paste)
+	lang := vars["lang"]
+	s := getPaste(paste, lang)
 	link := ADDRESS + "/raw/" + paste
 	p := &Page{
 		Title: paste,
@@ -242,7 +244,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
-	s := getPaste(paste)
+	s := getPaste(paste, "")
 	io.WriteString(w, s)
 
 }
@@ -251,7 +253,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/raw/{pasteId}", rawHandler)
-	router.HandleFunc("/p/{pasteId}/{lang}", langHandler)
+	router.HandleFunc("/p/{pasteId}/{lang}", pasteHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
