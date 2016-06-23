@@ -112,10 +112,10 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
-	stmt, err := db.Prepare("delete from pastebin where delkey=? id=?")
+	stmt, err := db.Prepare("delete from pastebin where delkey=?")
 	check(err)
 
-	res, err := stmt.Exec(html.EscapeString(delkey), html.EscapeString(paste))
+	res, err := stmt.Exec(html.EscapeString(delkey))
 	check(err)
 
 	affect, err := res.RowsAffected()
