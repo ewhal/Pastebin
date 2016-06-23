@@ -8,6 +8,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -34,6 +35,11 @@ type Response struct {
 	URL    string `json:"url"`
 	SIZE   int    `json:"size"`
 	DELKEY string `json:"delkey"`
+}
+
+type Page struct {
+	Title string
+	Body  []byte
 }
 
 func check(err error) {
@@ -166,12 +172,14 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 			w.Header().Set("Content-Type", "application/xml")
 			w.Write(x)
+
 		case "html":
 			w.Header().Set("Content-Type", "text/html")
 			io.WriteString(w, "<p><b>URL</b>: <a href='"+b.URL+"'>"+b.URL+"</a></p>")
 			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+ADDRESS+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
 
 		default:
+			w.Header().Set("Content-Type", "plain/text")
 			io.WriteString(w, b.URL+"\n")
 			io.WriteString(w, "delete key: "+b.DELKEY+"\n")
 		}
@@ -209,7 +217,21 @@ func getPaste(paste string) string {
 	}
 
 }
+
+var templates = template.Must(template.ParseFiles("assets/paste.html"))
+
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	s := getPaste(paste)
+	p := &Page{
+		Title: paste,
+		Body:  []byte(s),
+	}
+	err := templates.ExecuteTemplate(w, "assets/paste.html", p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func rawHandler(w http.ResponseWriter, r *http.Request) {
