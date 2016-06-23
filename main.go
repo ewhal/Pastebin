@@ -235,7 +235,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		p := &Page{
 			Title: paste,
 			Body:  []byte(s),
-			Link:  link,
+			Raw:   link,
+			Home:  ADDRESS,
 		}
 		t, err := template.ParseFiles("assets/paste.html")
 		if err != nil {
@@ -246,7 +247,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		dat, err := ioutil.ReadFile("assets/syntax.html")
 		check(err)
-		fmt.Fprintf(w, string(dat), paste, paste, s, link)
+		fmt.Fprintf(w, string(dat), paste, paste, s, ADDRESS, link)
 
 	}
 }
