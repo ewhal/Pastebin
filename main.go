@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -69,20 +68,19 @@ func generateName() string {
 	return s
 
 }
-func hash(paste []byte) string {
+func hash(paste string) string {
 	hasher := sha1.New()
-	hasher.Write(paste)
+
+	hasher.Write([]byte(paste))
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 	return sha
 }
 
-func save(raw []byte) []string {
-	p := raw[86 : len(raw)-46]
-
+func save(raw string) []string {
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
-	sha := hash(p)
+	sha := hash(raw)
 	query, err := db.Query("select id, hash, data, delkey from pastebin")
 	for query.Next() {
 		var id, hash, paste, delkey string
@@ -96,7 +94,7 @@ func save(raw []byte) []string {
 	id := generateName()
 	url := ADDRESS + "/p/" + id
 	delKey := uniuri.NewLen(40)
-	paste := html.EscapeString(string(p))
+	paste := html.EscapeString(raw)
 
 	stmt, err := db.Prepare("INSERT INTO pastebin(id, hash, data, delkey) values(?,?,?,?)")
 	check(err)
@@ -134,12 +132,12 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	output := vars["output"]
 	switch r.Method {
 	case "POST":
-		buf, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
+		paste := r.FormValue("p")
+		if paste == "" {
+			http.Error(w, "Empty paste", 500)
 		}
 
-		values := save(buf)
+		values := save(paste)
 		b := &Response{
 			ID:     values[0],
 			HASH:   values[1],
