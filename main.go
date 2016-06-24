@@ -95,9 +95,7 @@ func save(raw string, lang string, title string) []string {
 		check(err)
 		if hash == sha {
 			url := ADDRESS + "/p/" + id
-			if title == "" {
-				return []string{id, title, hash, url, paste, delkey}
-			}
+			return []string{id, title, hash, url, paste, delkey}
 		}
 	}
 	id := generateName()
