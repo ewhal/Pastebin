@@ -39,10 +39,11 @@ type Response struct {
 }
 
 type Page struct {
-	Title string
-	Body  []byte
-	Raw   string
-	Home  string
+	Title    string
+	Body     []byte
+	Raw      string
+	Home     string
+	Download string
 }
 
 func check(err error) {
@@ -235,12 +236,14 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	lang := vars["lang"]
 	s := getPaste(paste, lang)
 	link := ADDRESS + "/raw/" + paste
+	download := ADDRESS + "/download/" + paste
 	if lang == "" {
 		p := &Page{
-			Title: paste,
-			Body:  []byte(s),
-			Raw:   link,
-			Home:  ADDRESS,
+			Title:    paste,
+			Body:     []byte(s),
+			Raw:      link,
+			Home:     ADDRESS,
+			Download: download,
 		}
 		err := templates.ExecuteTemplate(w, "paste.html", p)
 		if err != nil {
@@ -248,7 +251,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, link)
+		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, download, link)
 
 	}
 }
