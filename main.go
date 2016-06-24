@@ -256,6 +256,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func cloneHandler(w http.ResponseWriter, r *http.Request) {
 }
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	s := getPaste(paste, "")
+	w.Header().Set("Content-Disposition", "attachment; filename="+paste)
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	io.Copy(w, s)
+
 }
 func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -270,8 +277,8 @@ func main() {
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/raw/{pasteId}", rawHandler)
 	router.HandleFunc("/p/{pasteId}/{lang}", pasteHandler)
-	router.HandleFunc("/{clone}/{pasteId}", cloneHandler)
-	router.HandleFunc("/{download}/{pasteId}", downloadHandler)
+	router.HandleFunc("/clone/{pasteId}", cloneHandler)
+	router.HandleFunc("/download/{pasteId}", downloadHandler)
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
