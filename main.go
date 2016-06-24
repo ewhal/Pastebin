@@ -135,7 +135,7 @@ func save(raw string, lang string, title string, expiry string) []string {
 		break
 
 	default:
-		expiryTime = now.Format("2006-01-02 15:04:05")
+		expiryTime = now.Add(time.Hour * 24 * 365 * 200).Format("2006-01-02 15:04:05")
 		break
 
 	}
