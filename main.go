@@ -226,7 +226,7 @@ func getPaste(paste string, lang string) string {
 
 }
 
-var templates = template.Must(template.ParseFiles("assets/paste.html"))
+var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html"))
 var syntax, _ = ioutil.ReadFile("assets/syntax.html")
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
