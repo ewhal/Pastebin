@@ -88,14 +88,16 @@ func save(raw string, lang string, title string) []string {
 	check(err)
 
 	sha := hash(raw)
-	query, err := db.Query("select id, hash, data, delkey from pastebin")
+	query, err := db.Query("select id, title hash, data, delkey from pastebin")
 	for query.Next() {
-		var id, hash, paste, delkey string
-		err := query.Scan(&id, &hash, &paste, &delkey)
+		var id, title, hash, paste, delkey string
+		err := query.Scan(&id, &title, &hash, &paste, &delkey)
 		check(err)
 		if hash == sha {
 			url := ADDRESS + "/p/" + id
-			return []string{id, hash, url, paste, delkey}
+			if title == "" {
+				return []string{id, title, hash, url, paste, delkey}
+			}
 		}
 	}
 	id := generateName()
