@@ -222,7 +222,7 @@ func getPaste(paste string, lang string) (string, string) {
 	check(err)
 
 	if err == sql.ErrNoRows {
-		return "Error invalid paste"
+		return "Error invalid paste", ""
 	} else {
 		if lang == "" {
 			return html.UnescapeString(s), title
