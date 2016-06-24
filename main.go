@@ -32,6 +32,7 @@ const (
 
 type Response struct {
 	ID     string `json:"id"`
+	TITLE  string `json:"title"`
 	HASH   string `json:"hash"`
 	URL    string `json:"url"`
 	SIZE   int    `json:"size"`
@@ -82,7 +83,7 @@ func hash(paste string) string {
 	return sha
 }
 
-func save(raw string, lang string) []string {
+func save(raw string, lang string, title string) []string {
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
@@ -107,12 +108,17 @@ func save(raw string, lang string) []string {
 	delKey := uniuri.NewLen(40)
 	paste := html.EscapeString(raw)
 
-	stmt, err := db.Prepare("INSERT INTO pastebin(id, hash, data, delkey) values(?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey) values(?,?,?,?,?)")
 	check(err)
-	_, err = stmt.Exec(id, sha, paste, delKey)
-	check(err)
+	if title == "" {
+		_, err = stmt.Exec(id, id, sha, paste, delKey)
+		check(err)
+	} else {
+		_, err = stmt.Exec(id, title, sha, paste, delKey)
+		check(err)
+	}
 	db.Close()
-	return []string{id, sha, url, paste, delKey}
+	return []string{id, title, sha, url, paste, delKey}
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
@@ -145,17 +151,19 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		paste := r.FormValue("p")
 		lang := r.FormValue("lang")
+		title := r.FormValue("title")
 		if paste == "" {
 			http.Error(w, "Empty paste", 500)
 			return
 		}
-		values := save(paste, lang)
+		values := save(paste, lang, title)
 		b := &Response{
 			ID:     values[0],
-			HASH:   values[1],
-			URL:    values[2],
-			SIZE:   len(values[3]),
-			DELKEY: values[4],
+			TITLE:  values[1],
+			HASH:   values[2],
+			URL:    values[3],
+			SIZE:   len(values[4]),
+			DELKEY: values[5],
 		}
 
 		switch output {
