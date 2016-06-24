@@ -213,11 +213,11 @@ func highlight(s string, lang string) (string, error) {
 
 }
 
-func getPaste(paste string, lang string) string {
+func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
-	var s string
-	err = db.QueryRow("select data from pastebin where id=?", param1).Scan(&s)
+	var title, s string
+	err = db.QueryRow("select title, data from pastebin where id=?", param1).Scan(&title, &s)
 	db.Close()
 	check(err)
 
@@ -225,11 +225,11 @@ func getPaste(paste string, lang string) string {
 		return "Error invalid paste"
 	} else {
 		if lang == "" {
-			return html.UnescapeString(s)
+			return html.UnescapeString(s), title
 		} else {
 			high, err := highlight(s, lang)
 			check(err)
-			return high
+			return high, title
 
 		}
 	}
@@ -243,13 +243,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	lang := vars["lang"]
-	s := getPaste(paste, lang)
+	s, title := getPaste(paste, lang)
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
 	clone := ADDRESS + "/clone/" + paste
 	if lang == "" {
 		p := &Page{
-			Title:    paste,
+			Title:    title,
 			Body:     []byte(s),
 			Raw:      link,
 			Home:     ADDRESS,
@@ -270,12 +270,12 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func cloneHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
-	s := getPaste(paste, "")
+	s, title := getPaste(paste, "")
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
 	clone := ADDRESS + "/clone/" + paste
 	p := &Page{
-		Title:    paste,
+		Title:    title,
 		Body:     []byte(s),
 		Raw:      link,
 		Home:     ADDRESS,
@@ -291,7 +291,7 @@ func cloneHandler(w http.ResponseWriter, r *http.Request) {
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
-	s := getPaste(paste, "")
+	s, _ := getPaste(paste, "")
 	w.Header().Set("Content-Disposition", "attachment; filename="+paste)
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	io.WriteString(w, s)
@@ -300,7 +300,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
-	s := getPaste(paste, "")
+	s, _ := getPaste(paste, "")
 	io.WriteString(w, s)
 
 }
