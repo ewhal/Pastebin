@@ -114,7 +114,7 @@ func save(raw string, lang string, title string) []string {
 		_, err = stmt.Exec(id, id, sha, paste, delKey)
 		check(err)
 	} else {
-		_, err = stmt.Exec(id, title, sha, paste, delKey)
+		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey)
 		check(err)
 	}
 	db.Close()
@@ -225,11 +225,11 @@ func getPaste(paste string, lang string) (string, string) {
 		return "Error invalid paste", ""
 	} else {
 		if lang == "" {
-			return html.UnescapeString(s), title
+			return html.UnescapeString(s), html.UnescapeString(title)
 		} else {
 			high, err := highlight(s, lang)
 			check(err)
-			return high, title
+			return high, html.UnescapeString(title)
 
 		}
 	}
