@@ -44,6 +44,7 @@ type Page struct {
 	Raw      string
 	Home     string
 	Download string
+	Clone    string
 }
 
 func check(err error) {
@@ -227,7 +228,7 @@ func getPaste(paste string, lang string) string {
 
 }
 
-var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html"))
+var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
 var syntax, _ = ioutil.ReadFile("assets/syntax.html")
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
@@ -237,6 +238,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	s := getPaste(paste, lang)
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
+	clone := ADDRESS + "/clone/" + paste
 	if lang == "" {
 		p := &Page{
 			Title:    paste,
@@ -244,6 +246,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			Raw:      link,
 			Home:     ADDRESS,
 			Download: download,
+			Clone:    clone,
 		}
 		err := templates.ExecuteTemplate(w, "paste.html", p)
 		if err != nil {
@@ -251,12 +254,31 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, download, link)
+		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, download, link, clone)
 
 	}
 }
 
 func cloneHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+	s := getPaste(paste, "")
+	link := ADDRESS + "/raw/" + paste
+	download := ADDRESS + "/download/" + paste
+	clone := ADDRESS + "/clone/" + paste
+	p := &Page{
+		Title:    paste,
+		Body:     []byte(s),
+		Raw:      link,
+		Home:     ADDRESS,
+		Download: download,
+		Clone:    clone,
+	}
+	err := templates.ExecuteTemplate(w, "clone.html", p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 }
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
