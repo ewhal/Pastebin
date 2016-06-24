@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
@@ -31,12 +32,13 @@ const (
 )
 
 type Response struct {
-	ID     string `json:"id"`
-	TITLE  string `json:"title"`
-	HASH   string `json:"hash"`
-	URL    string `json:"url"`
-	SIZE   int    `json:"size"`
-	DELKEY string `json:"delkey"`
+	ID     string    `json:"id"`
+	TITLE  string    `json:"title"`
+	HASH   string    `json:"hash"`
+	URL    string    `json:"url"`
+	SIZE   int       `json:"size"`
+	DELKEY string    `json:"delkey"`
+	EXPIRY time.Time `json:"expiry"`
 }
 
 type Page struct {
@@ -83,15 +85,16 @@ func hash(paste string) string {
 	return sha
 }
 
-func save(raw string, lang string, title string) []string {
+func save(raw string, lang string, title string, expiry string) []string {
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
 	sha := hash(raw)
-	query, err := db.Query("select id, title, hash, data, delkey from pastebin")
+	query, err := db.Query("select id, title, hash, data, delkey, expiry from pastebin")
 	for query.Next() {
 		var id, title, hash, paste, delkey string
-		err := query.Scan(&id, &title, &hash, &paste, &delkey)
+		var expiry time.Time
+		err := query.Scan(&id, &title, &hash, &paste, &delkey, &expiry)
 		check(err)
 		if hash == sha {
 			url := ADDRESS + "/p/" + id
@@ -105,16 +108,48 @@ func save(raw string, lang string, title string) []string {
 	} else {
 		url = ADDRESS + "/p/" + id + "/" + lang
 	}
+	now := time.Now()
+
+	switch expiry {
+	case "5 minutes":
+		expiry := now.Add(time.Minute * 5).Format(time.RFC3339)
+		break
+
+	case "1 hour":
+		expiry := now.Add(time.Hour + 1).Format(time.RFC3339)
+		break
+
+	case "1 day":
+		expiry := now.Add(time.Hour * 24 * 1).Format(time.RFC3339)
+		break
+
+	case "1 week":
+		expiry := now.Add(time.Hour * 24 * 7).Format(time.RFC3339)
+		break
+
+	case "1 month":
+		expiry := now.Add(time.Hour * 24 * 30).Format(time.RFC3339)
+		break
+
+	case "1 year":
+		expiry := now.Add(time.Hour * 24 * 365).Format(time.RFC3339)
+		break
+
+	default:
+		expiry := now.Format(time.RFC3339)
+		break
+
+	}
 	delKey := uniuri.NewLen(40)
 	paste := html.EscapeString(raw)
 
-	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey) values(?,?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey, expiry) values(?,?,?,?,?,?)")
 	check(err)
 	if title == "" {
-		_, err = stmt.Exec(id, id, sha, paste, delKey)
+		_, err = stmt.Exec(id, id, sha, paste, delKey, expiry)
 		check(err)
 	} else {
-		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey)
+		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey, expiry)
 		check(err)
 	}
 	db.Close()
@@ -152,11 +187,12 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		paste := r.FormValue("p")
 		lang := r.FormValue("lang")
 		title := r.FormValue("title")
+		expiry := r.FormValue("expiry")
 		if paste == "" {
 			http.Error(w, "Empty paste", 500)
 			return
 		}
-		values := save(paste, lang, title)
+		values := save(paste, lang, title, expiry)
 		b := &Response{
 			ID:     values[0],
 			TITLE:  values[1],
