@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/base64"
@@ -14,7 +13,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/dchest/uniuri"
 	"github.com/ewhal/pygments"
@@ -261,7 +259,9 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s := getPaste(paste, "")
-	http.ServeContent(w, r, paste, time.Now(), bytes.NewReader([]byte(s)))
+	w.Header().Set("Content-Disposition", "attachment; filename="+paste)
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	io.WriteString(w, s)
 
 }
 func rawHandler(w http.ResponseWriter, r *http.Request) {
