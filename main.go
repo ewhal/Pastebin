@@ -89,11 +89,10 @@ func save(raw string, lang string, title string, expiry string) []string {
 	check(err)
 
 	sha := hash(raw)
-	query, err := db.Query("select id, title, hash, data, delkey, expiry from pastebin")
+	query, err := db.Query("select id, title, hash, data, delkey from pastebin")
 	for query.Next() {
 		var id, title, hash, paste, delkey string
-		var expiry time.Time
-		err := query.Scan(&id, &title, &hash, &paste, &delkey, &expiry)
+		err := query.Scan(&id, &title, &hash, &paste, &delkey)
 		check(err)
 		if hash == sha {
 			url := ADDRESS + "/p/" + id
