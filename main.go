@@ -253,6 +253,10 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func cloneHandler(w http.ResponseWriter, r *http.Request) {
+}
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+}
 func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
