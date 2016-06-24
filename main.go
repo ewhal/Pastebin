@@ -32,13 +32,12 @@ const (
 )
 
 type Response struct {
-	ID     string    `json:"id"`
-	TITLE  string    `json:"title"`
-	HASH   string    `json:"hash"`
-	URL    string    `json:"url"`
-	SIZE   int       `json:"size"`
-	DELKEY string    `json:"delkey"`
-	EXPIRY time.Time `json:"expiry"`
+	ID     string `json:"id"`
+	TITLE  string `json:"title"`
+	HASH   string `json:"hash"`
+	URL    string `json:"url"`
+	SIZE   int    `json:"size"`
+	DELKEY string `json:"delkey"`
 }
 
 type Page struct {
@@ -109,34 +108,35 @@ func save(raw string, lang string, title string, expiry string) []string {
 		url = ADDRESS + "/p/" + id + "/" + lang
 	}
 	now := time.Now()
+	var expiryTime string
 
 	switch expiry {
 	case "5 minutes":
-		expiry := now.Add(time.Minute * 5).Format(time.RFC3339)
+		expiryTime = now.Add(time.Minute * 5).Format(time.RFC3339)
 		break
 
 	case "1 hour":
-		expiry := now.Add(time.Hour + 1).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour + 1).Format(time.RFC3339)
 		break
 
 	case "1 day":
-		expiry := now.Add(time.Hour * 24 * 1).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 1).Format(time.RFC3339)
 		break
 
 	case "1 week":
-		expiry := now.Add(time.Hour * 24 * 7).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 7).Format(time.RFC3339)
 		break
 
 	case "1 month":
-		expiry := now.Add(time.Hour * 24 * 30).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 30).Format(time.RFC3339)
 		break
 
 	case "1 year":
-		expiry := now.Add(time.Hour * 24 * 365).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 365).Format(time.RFC3339)
 		break
 
 	default:
-		expiry := now.Format(time.RFC3339)
+		expiryTime = now.Format(time.RFC3339)
 		break
 
 	}
@@ -146,10 +146,10 @@ func save(raw string, lang string, title string, expiry string) []string {
 	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey, expiry) values(?,?,?,?,?,?)")
 	check(err)
 	if title == "" {
-		_, err = stmt.Exec(id, id, sha, paste, delKey, expiry)
+		_, err = stmt.Exec(id, id, sha, paste, delKey, expiryTime)
 		check(err)
 	} else {
-		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey, expiry)
+		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey, expiryTime)
 		check(err)
 	}
 	db.Close()
