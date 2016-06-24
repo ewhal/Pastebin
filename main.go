@@ -252,11 +252,18 @@ func highlight(s string, lang string) (string, error) {
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
-	var title, s, expiry string
+	var title, s string
+	var expiry string
 	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
-	fmt.Println(expiry)
-	db.Close()
 	check(err)
+	if expiry > time.Now().Format(time.RFC3339) {
+		stmt, err := db.Prepare("delete from pastebin where id=?")
+		check(err)
+		_, err = stmt.Exec(param1)
+		check(err)
+		return "Error invalid paste", ""
+	}
+	db.Close()
 
 	if err == sql.ErrNoRows {
 		return "Error invalid paste", ""
