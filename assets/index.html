@@ -37,7 +37,7 @@
 							<span class="help-block">Paste Title</span>
 						</div>
 						<div class="form-group is-empty" style="margin-top: 0px;">
-							<textarea class="form-control" rows="20" id="textArea" name="p" placeholder="Paste" style="resize: both;"></textarea>
+							<textarea class="form-control" rows="20" id="textArea" name="p" placeholder="Paste" style="resize: both;" data-autoresize></textarea>
 							<span class="help-block">Paste your text here</span>
 						</div>
 					</div>
@@ -470,11 +470,18 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/material.min.js" integrity="sha256-uZbIqasulk7Y9yEwknbeQ0FpF3aUhtPwuggbpvQaI8Y=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/ripples.min.js" integrity="sha256-TY/EO/++Ug/P+fSBjaqlmtuphCBKwlP7TOnS+SGnN8g=" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/jquery.autogrow/1.2.2/jquery.autogrow.js" integrity="sha256-8H/2fCPoOgvOvmhYev7r2W5Da/DPE4LtydA7EMqngBQ=" crossorigin="anonymous"></script>
 
 		<script>
 			$.material.init();
-			$('textarea').autogrow();
+			jQuery.each(jQuery('textarea[data-autoresize]'), function() {
+				var offset = this.offsetHeight - this.clientHeight;
+
+				var resizeTextarea = function(el) {
+					jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+				};
+				jQuery(this).on('keyup input', function() { resizeTextarea(this); }).removeAttr('data-autoresize');
+			});
+
 		</script>
 
 	</body>
