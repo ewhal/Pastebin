@@ -248,7 +248,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		dat, err := ioutil.ReadFile("assets/syntax.html")
 		check(err)
-		fmt.Fprintf(w, string(dat), paste, paste, s, ADDRESS, link)
+		w.Write(string(dat), paste, paste, s, ADDRESS, link)
 
 	}
 }
