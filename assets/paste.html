@@ -52,21 +52,17 @@
 		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/ripples.min.js" integrity="sha256-TY/EO/++Ug/P+fSBjaqlmtuphCBKwlP7TOnS+SGnN8g=" crossorigin="anonymous"></script>
 		<script>
 			$.material.init();
-			var offset = this.offsetHeight - this.clientHeight;
 
-			var resizeTextarea = function(el) {
-				jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
-			};
 
 			jQuery.each(jQuery('textarea[data-autoresize]'), function() {
-				jQuery(this).on('keyup input', function() { resizeTextarea(this); });
+				var offset = this.offsetHeight - this.clientHeight;
+
+				var resizeTextarea = function(el) {
+					jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+				};
+				resizeTextarea(this);
 			});
 
-			$( document ).ready(function() {
-				$('textarea[data-autoresize]').each(function(){
-					resizeTextarea(this);
-				});
-			});
 		</script>
 
 	</body>
