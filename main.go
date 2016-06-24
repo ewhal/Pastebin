@@ -111,31 +111,31 @@ func save(raw string, lang string, title string, expiry string) []string {
 
 	switch expiry {
 	case "5 minutes":
-		expiryTime = now.Add(time.Minute * 5).Format(time.RFC3339)
+		expiryTime = now.Add(time.Minute * 5).Format("2006-01-02 15:04:05")
 		break
 
 	case "1 hour":
-		expiryTime = now.Add(time.Hour + 1).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour + 1).Format("2006-01-02 15:04:05")
 		break
 
 	case "1 day":
-		expiryTime = now.Add(time.Hour * 24 * 1).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 1).Format("2006-01-02 15:04:05")
 		break
 
 	case "1 week":
-		expiryTime = now.Add(time.Hour * 24 * 7).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 7).Format("2006-01-02 15:04:05")
 		break
 
 	case "1 month":
-		expiryTime = now.Add(time.Hour * 24 * 30).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 30).Format("2006-01-02 15:04:05")
 		break
 
 	case "1 year":
-		expiryTime = now.Add(time.Hour * 24 * 365).Format(time.RFC3339)
+		expiryTime = now.Add(time.Hour * 24 * 365).Format("2006-01-02 15:04:05")
 		break
 
 	default:
-		expiryTime = now.Format(time.RFC3339)
+		expiryTime = now.Format("2006-01-02 15:04:05")
 		break
 
 	}
@@ -255,10 +255,7 @@ func getPaste(paste string, lang string) (string, string) {
 	var expiry string
 	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
 	check(err)
-	fmt.Println(expiry)
-	fmt.Println(time.Now().Format(time.RFC3339))
-	fmt.Println(expiry > time.Now().Format(time.RFC3339))
-	if expiry > time.Now().Format(time.RFC3339) {
+	if time.Now().Format("2006-01-02 15:04:05") > expiry {
 		stmt, err := db.Prepare("delete from pastebin where id=?")
 		check(err)
 		_, err = stmt.Exec(param1)
