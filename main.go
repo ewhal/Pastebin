@@ -134,8 +134,12 @@ func save(raw string, lang string, title string, expiry string) []string {
 		expiryTime = now.Add(time.Hour * 24 * 365).Format("2006-01-02 15:04:05")
 		break
 
+	case "forever":
+		expiryTime = now.Add(time.Hour * 24 * (365 * 20)).Format("2006-01-02 15:04:05")
+		break
+
 	default:
-		expiryTime = now.Add(((time.Hour * 24) * 365) * 200).Format("2006-01-02 15:04:05")
+		expiryTime = now.Add(time.Hour * 24 * (365 * 20)).Format("2006-01-02 15:04:05")
 		break
 
 	}
