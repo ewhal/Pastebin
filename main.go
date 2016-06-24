@@ -226,6 +226,9 @@ func getPaste(paste string, lang string) string {
 
 }
 
+var templates = template.Must(template.ParseFiles("assets/paste.html"))
+var syntax, _ = ioutil.ReadFile("assets/syntax.html")
+
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
@@ -239,16 +242,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			Raw:   link,
 			Home:  ADDRESS,
 		}
-		t, err := template.ParseFiles("assets/paste.html")
+		err := templates.ExecuteTemplate(w, "assets/paste.html", p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		t.Execute(w, p)
 
 	} else {
-		dat, err := ioutil.ReadFile("assets/syntax.html")
-		check(err)
-		fmt.Fprintf(w, string(dat), paste, paste, s, ADDRESS, link)
+		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, link)
 
 	}
 }
