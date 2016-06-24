@@ -255,6 +255,9 @@ func getPaste(paste string, lang string) (string, string) {
 	var expiry string
 	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
 	check(err)
+	fmt.Println(expiry)
+	fmt.Println(time.Now().Format(time.RFC3339))
+	fmt.Println(expiry > time.Now().Format(time.RFC3339))
 	if expiry > time.Now().Format(time.RFC3339) {
 		stmt, err := db.Prepare("delete from pastebin where id=?")
 		check(err)
