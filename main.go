@@ -252,8 +252,9 @@ func highlight(s string, lang string) (string, error) {
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
-	var title, s string
-	err = db.QueryRow("select title, data from pastebin where id=?", param1).Scan(&title, &s)
+	var title, s, expiry string
+	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
+	fmt.Println(expiry)
 	db.Close()
 	check(err)
 
