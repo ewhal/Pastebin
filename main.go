@@ -242,7 +242,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			Raw:   link,
 			Home:  ADDRESS,
 		}
-		err := templates.ExecuteTemplate(w, "assets/paste.html", p)
+		err := templates.ExecuteTemplate(w, "paste.html", p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
