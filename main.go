@@ -294,22 +294,23 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
 	clone := ADDRESS + "/clone/" + paste
+	p := &Page{
+		Title:    title,
+		Body:     []byte(s),
+		Raw:      link,
+		Home:     ADDRESS,
+		Download: download,
+		Clone:    clone,
+	}
 	if lang == "" {
-		p := &Page{
-			Title:    title,
-			Body:     []byte(s),
-			Raw:      link,
-			Home:     ADDRESS,
-			Download: download,
-			Clone:    clone,
-		}
+
 		err := templates.ExecuteTemplate(w, "paste.html", p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
 	} else {
-		fmt.Fprintf(w, string(syntax), paste, paste, s, ADDRESS, download, link, clone)
+		fmt.Fprintf(w, string(syntax), p.Title, p.Title, s, p.Home, p.Download, p.Raw, p.Clone)
 
 	}
 }
