@@ -349,7 +349,6 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	setup()
 	router := mux.NewRouter()
 	router.HandleFunc("/p/{pasteId}", pasteHandler)
 	router.HandleFunc("/raw/{pasteId}", rawHandler)
