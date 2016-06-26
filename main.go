@@ -56,24 +56,19 @@ func check(err error) {
 }
 
 func generateName() string {
-	s := uniuri.NewLen(LENGTH)
+	id := uniuri.NewLen(LENGTH)
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
-	query, err := db.Query("select id from pastebin")
-	for query.Next() {
-		var id string
-		err := query.Scan(&id)
-		if err != nil {
-
-		}
-		if id == s {
+	query, err := db.Query("select id from pastebin where id=?", id)
+	if err != sql.ErrNoRows {
+		for query.Next() {
 			generateName()
 		}
 	}
 	db.Close()
 
-	return s
+	return id
 
 }
 func hash(paste string) string {
