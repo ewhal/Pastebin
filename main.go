@@ -31,10 +31,6 @@ const (
 	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
 
-var (
-	db *sql.DB
-)
-
 type Response struct {
 	ID     string `json:"id"`
 	TITLE  string `json:"title"`
@@ -53,15 +49,6 @@ type Page struct {
 	Clone    string
 }
 
-func setup() {
-	var err error
-	db, err = sql.Open("mysql", DATABASE)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-}
-
 func check(err error) {
 	if err != nil {
 		fmt.Println(err)
@@ -70,6 +57,8 @@ func check(err error) {
 
 func generateName() string {
 	id := uniuri.NewLen(LENGTH)
+	db, err := sql.Open("mysql", DATABASE)
+	check(err)
 
 	query, err := db.Query("select id from pastebin where id=?", id)
 	if err != sql.ErrNoRows {
@@ -91,6 +80,8 @@ func hash(paste string) string {
 }
 
 func save(raw string, lang string, title string, expiry string) []string {
+	db, err := sql.Open("mysql", DATABASE)
+	check(err)
 
 	sha := hash(raw)
 	query, err := db.Query("select id, title, hash, data, delkey from pastebin where hash=?", sha)
@@ -167,6 +158,9 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	delkey := vars["delKey"]
+
+	db, err := sql.Open("mysql", DATABASE)
+	check(err)
 
 	stmt, err := db.Prepare("delete from pastebin where delkey=?")
 	check(err)
@@ -255,9 +249,10 @@ func highlight(s string, lang string) (string, error) {
 
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
+	db, err := sql.Open("mysql", DATABASE)
 	var title, s string
 	var expiry string
-	err := db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
+	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
 	check(err)
 	if time.Now().Format("2006-01-02 15:04:05") > expiry {
 		stmt, err := db.Prepare("delete from pastebin where id=?")
