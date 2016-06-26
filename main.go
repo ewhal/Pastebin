@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	db *db.SQL
+	db *sql.DB
 )
 
 type Response struct {
