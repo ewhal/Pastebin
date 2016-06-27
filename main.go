@@ -139,15 +139,15 @@ func save(raw string, lang string, title string, expiry string) []string {
 
 	}
 	delKey := uniuri.NewLen(40)
-	paste := html.EscapeString(raw)
+	dataEscaped := html.EscapeString(raw)
 
 	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey, expiry) values(?,?,?,?,?,?)")
 	check(err)
 	if title == "" {
-		_, err = stmt.Exec(id, id, sha, paste, delKey, expiryTime)
+		_, err = stmt.Exec(id, id, sha, dataEscaped, delKey, expiryTime)
 		check(err)
 	} else {
-		_, err = stmt.Exec(id, html.EscapeString(title), sha, paste, delKey, expiryTime)
+		_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
 		check(err)
 	}
 	db.Close()
@@ -156,7 +156,7 @@ func save(raw string, lang string, title string, expiry string) []string {
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	paste := vars["pasteId"]
+	id := vars["pasteId"]
 	delkey := vars["delKey"]
 
 	db, err := sql.Open("mysql", DATABASE)
@@ -165,14 +165,14 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	stmt, err := db.Prepare("delete from pastebin where delkey=? and id=?")
 	check(err)
 
-	res, err := stmt.Exec(html.EscapeString(delkey), html.EscapeString(paste))
+	res, err := stmt.Exec(html.EscapeString(delkey), html.EscapeString(id))
 	check(err)
 
 	_, err = res.RowsAffected()
 	if err == sql.ErrNoRows {
 		io.WriteString(w, "Error invalid paste")
 	} else {
-		io.WriteString(w, paste+" deleted")
+		io.WriteString(w, id+" deleted")
 	}
 	db.Close()
 
