@@ -151,7 +151,7 @@ func save(raw string, lang string, title string, expiry string) []string {
 		check(err)
 	}
 	db.Close()
-	return []string{id, title, sha, url, paste, delKey}
+	return []string{id, title, sha, url, dataEscaped, delKey}
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
