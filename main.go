@@ -78,6 +78,25 @@ func hash(paste string) string {
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 	return sha
 }
+func durationFromExpiry(expiry string) time.Duration {
+	switch expiry {
+	case "5 minutes":
+		return time.Minute * 5
+	case "1 hour":
+		return time.Hour + 1 // XXX: did you mean '*'?
+	case "1 day":
+		return time.Hour * 24
+	case "1 week":
+		return time.Hour * 24 * 7
+	case "1 month":
+		return time.Hour * 24 * 30
+	case "1 year":
+		return time.Hour * 24 * 365
+	case "forever":
+		return time.Hour * 24 * (365 * 20)
+	}
+	return time.Hour * 24 * (365 * 20)
+}
 
 func save(raw string, lang string, title string, expiry string) []string {
 	db, err := sql.Open("mysql", DATABASE)
@@ -101,43 +120,9 @@ func save(raw string, lang string, title string, expiry string) []string {
 	} else {
 		url = ADDRESS + "/p/" + id + "/" + lang
 	}
-	now := time.Now()
-	var expiryTime string
+	const timeFormat = "2006-01-02 15:04:05"
+	expiryTime := time.Now().Add(durationFromExpiry(expiry)).Format(timeFormat)
 
-	switch expiry {
-	case "5 minutes":
-		expiryTime = now.Add(time.Minute * 5).Format("2006-01-02 15:04:05")
-		break
-
-	case "1 hour":
-		expiryTime = now.Add(time.Hour + 1).Format("2006-01-02 15:04:05")
-		break
-
-	case "1 day":
-		expiryTime = now.Add(time.Hour * 24 * 1).Format("2006-01-02 15:04:05")
-		break
-
-	case "1 week":
-		expiryTime = now.Add(time.Hour * 24 * 7).Format("2006-01-02 15:04:05")
-		break
-
-	case "1 month":
-		expiryTime = now.Add(time.Hour * 24 * 30).Format("2006-01-02 15:04:05")
-		break
-
-	case "1 year":
-		expiryTime = now.Add(time.Hour * 24 * 365).Format("2006-01-02 15:04:05")
-		break
-
-	case "forever":
-		expiryTime = now.Add(time.Hour * 24 * (365 * 20)).Format("2006-01-02 15:04:05")
-		break
-
-	default:
-		expiryTime = now.Add(time.Hour * 24 * (365 * 20)).Format("2006-01-02 15:04:05")
-		break
-
-	}
 	delKey := uniuri.NewLen(40)
 	dataEscaped := html.EscapeString(raw)
 
