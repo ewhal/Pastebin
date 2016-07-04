@@ -43,6 +43,10 @@ const (
 	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
 
+// Template pages
+var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
+var syntax, _ = ioutil.ReadFile("assets/syntax.html")
+
 // Response API struct
 type Response struct {
 	ID     string `json:"id"`
@@ -73,11 +77,13 @@ func check(err error) {
 // generateName uses uniuri to generate a random string that isn't in the
 // database
 func generateName() string {
+	// use uniuri to generate random string
 	id := uniuri.NewLen(LENGTH)
+
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 	defer db.Close()
-
+	// query database if id exists and if it does call generateName again
 	query, err := db.Query("select id from pastebin where id=?", id)
 	if err != sql.ErrNoRows {
 		for query.Next() {
@@ -132,8 +138,10 @@ func save(raw string, lang string, title string, expiry string) Response {
 	check(err)
 	defer db.Close()
 
+	// hash paste data and query database to see if paste exists
 	sha := hash(raw)
 	query, err := db.Query("select id, title, hash, data, delkey from pastebin where hash=?", sha)
+
 	if err != sql.ErrNoRows {
 		for query.Next() {
 			var id, title, hash, paste, delkey string
@@ -162,6 +170,7 @@ func save(raw string, lang string, title string, expiry string) Response {
 	}
 	_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
 	check(err)
+
 	return Response{id, title, sha, url, len(dataEscaped), delKey}
 }
 
@@ -253,7 +262,8 @@ func highlight(s string, lang string) (string, error) {
 
 }
 
-// getPaste
+// getPaste takes pasteid and language
+// queries the database and returns paste data
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
@@ -281,9 +291,6 @@ func getPaste(paste string, lang string) (string, string) {
 	}
 	return html.UnescapeString(s), html.UnescapeString(title)
 }
-
-var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
-var syntax, _ = ioutil.ReadFile("assets/syntax.html")
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -339,6 +346,8 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s, _ := getPaste(paste, "")
+
+	// Set header to an attachment so browser will automatically download it
 	w.Header().Set("Content-Disposition", "attachment; filename="+paste)
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	io.WriteString(w, s)
@@ -348,6 +357,7 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s, _ := getPaste(paste, "")
+	// simply write string to browser
 	io.WriteString(w, s)
 
 }
