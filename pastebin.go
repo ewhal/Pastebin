@@ -1,4 +1,4 @@
-// pastebin is a simple modern and powerful pastebin service
+// package pastebin is a simple modern and powerful pastebin service
 package pastebin
 
 import (
@@ -33,7 +33,7 @@ const (
 	LENGTH = 6
 	// PORT that pastebin will listen on
 	PORT = ":9900"
-	//  USERNAME for databse
+	// USERNAME for database
 	USERNAME = ""
 	// PASS database password
 	PASS = ""
@@ -183,12 +183,9 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	check(err)
 
 	_, err = res.RowsAffected()
-	if err == sql.ErrNoRows {
-		io.WriteString(w, "Error invalid paste")
-	} else {
+	if err != sql.ErrNoRows {
 		io.WriteString(w, id+" deleted")
 	}
-
 }
 
 // saveHandler
@@ -276,17 +273,13 @@ func getPaste(paste string, lang string) (string, string) {
 
 	if err == sql.ErrNoRows {
 		return "Error invalid paste", ""
-	} else {
-		if lang == "" {
-			return html.UnescapeString(s), html.UnescapeString(title)
-		} else {
-			high, err := highlight(s, lang)
-			check(err)
-			return high, html.UnescapeString(title)
-
-		}
 	}
-
+	if lang != "" {
+		high, err := highlight(s, lang)
+		check(err)
+		return high, html.UnescapeString(title)
+	}
+	return html.UnescapeString(s), html.UnescapeString(title)
 }
 
 var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
