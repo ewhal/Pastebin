@@ -1,4 +1,4 @@
-// package pastebin is a simple modern and powerful pastebin service
+// Package pastebin is a simple modern and powerful pastebin service
 package pastebin
 
 import (
