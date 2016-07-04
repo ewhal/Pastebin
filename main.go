@@ -59,6 +59,7 @@ func generateName() string {
 	id := uniuri.NewLen(LENGTH)
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
+	defer db.Close()
 
 	query, err := db.Query("select id from pastebin where id=?", id)
 	if err != sql.ErrNoRows {
@@ -66,7 +67,6 @@ func generateName() string {
 			generateName()
 		}
 	}
-	db.Close()
 
 	return id
 
@@ -102,6 +102,7 @@ func save(raw string, lang string, title string, expiry string) Response {
 
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
+	defer db.Close()
 
 	sha := hash(raw)
 	query, err := db.Query("select id, title, hash, data, delkey from pastebin where hash=?", sha)
@@ -136,7 +137,6 @@ func save(raw string, lang string, title string, expiry string) Response {
 		_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
 		check(err)
 	}
-	db.Close()
 	return Response{id, title, sha, url, len(dataEscaped), delKey}
 }
 
@@ -147,6 +147,7 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
+	defer db.Close()
 
 	stmt, err := db.Prepare("delete from pastebin where delkey=? and id=?")
 	check(err)
@@ -160,7 +161,6 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		io.WriteString(w, id+" deleted")
 	}
-	db.Close()
 
 }
 func saveHandler(w http.ResponseWriter, r *http.Request) {
@@ -228,6 +228,8 @@ func highlight(s string, lang string) (string, error) {
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
+	check(err)
+	defer db.Close()
 	var title, s string
 	var expiry string
 	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
@@ -239,7 +241,6 @@ func getPaste(paste string, lang string) (string, string) {
 		check(err)
 		return "Error invalid paste", ""
 	}
-	db.Close()
 
 	if err == sql.ErrNoRows {
 		return "Error invalid paste", ""
