@@ -1,3 +1,4 @@
+// pastebin is a simple modern and powerful pastebin service
 package pastebin
 
 import (
@@ -15,22 +16,34 @@ import (
 	"net/http"
 	"time"
 
+	// uniuri is used for easy random string generation
 	"github.com/dchest/uniuri"
+	// pygments is used for syntax highlighting
 	"github.com/ewhal/pygments"
+	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
+	// mux is used for url routing
 	"github.com/gorilla/mux"
 )
 
 const (
-	ADDRESS  = "http://localhost:9900"
-	LENGTH   = 6
-	PORT     = ":9900"
+	// ADDRESS that pastebin will return links for
+	ADDRESS = "http://localhost:9900"
+	// LENGTH of paste id
+	LENGTH = 6
+	// PORT that pastebin will listen on
+	PORT = ":9900"
+	//  USERNAME for databse
 	USERNAME = ""
-	PASS     = ""
-	NAME     = ""
+	// PASS database password
+	PASS = ""
+	// NAME database name
+	NAME = ""
+	// DATABASE connection String
 	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
 
+// Response API struct
 type Response struct {
 	ID     string `json:"id"`
 	TITLE  string `json:"title"`
@@ -40,6 +53,7 @@ type Response struct {
 	DELKEY string `json:"delkey"`
 }
 
+// Page generation struct
 type Page struct {
 	Title    string
 	Body     []byte
@@ -49,12 +63,15 @@ type Page struct {
 	Clone    string
 }
 
+// check error handling function
 func check(err error) {
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
+// generateName uses uniuri to generate a random string that isn't in the
+// database
 func generateName() string {
 	id := uniuri.NewLen(LENGTH)
 	db, err := sql.Open("mysql", DATABASE)
@@ -71,6 +88,8 @@ func generateName() string {
 	return id
 
 }
+
+// hash hashes paste into a sha1 hash
 func hash(paste string) string {
 	hasher := sha1.New()
 
@@ -78,6 +97,9 @@ func hash(paste string) string {
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 	return sha
 }
+
+// durationFromExpiry takes the expiry in string format and returns the duration
+// that the paste will exist for
 func durationFromExpiry(expiry string) time.Duration {
 	switch expiry {
 	case "5 minutes":
@@ -98,6 +120,12 @@ func durationFromExpiry(expiry string) time.Duration {
 	return time.Hour * 24 * (365 * 20)
 }
 
+// save function handles the saving of each paste.
+// raw string is the raw paste input
+// lang string is the user specified language for syntax highlighting
+// title string user customized title
+// expiry string duration that the paste will exist for
+// Returns Response struct
 func save(raw string, lang string, title string, expiry string) Response {
 
 	db, err := sql.Open("mysql", DATABASE)
@@ -139,6 +167,8 @@ func save(raw string, lang string, title string, expiry string) Response {
 	return Response{id, title, sha, url, len(dataEscaped), delKey}
 }
 
+// delHandler checks to see if delkey and pasteid exist in the database.
+// if both exist and are correct the paste will be removed.
 func delHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["pasteId"]
@@ -162,6 +192,8 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+// saveHandler
 func saveHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	output := vars["output"]
@@ -214,6 +246,8 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// highlight uses user specified input to call pygments library to highlight the
+// paste
 func highlight(s string, lang string) (string, error) {
 
 	highlight, err := pygments.Highlight(html.UnescapeString(s), html.EscapeString(lang), "html", "style=autumn,linenos=True, lineanchors=True,anchorlinenos=True,noclasses=True,", "utf-8")
@@ -224,6 +258,7 @@ func highlight(s string, lang string) (string, error) {
 
 }
 
+// getPaste
 func getPaste(paste string, lang string) (string, string) {
 	param1 := html.EscapeString(paste)
 	db, err := sql.Open("mysql", DATABASE)
