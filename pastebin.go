@@ -158,12 +158,10 @@ func save(raw string, lang string, title string, expiry string) Response {
 	stmt, err := db.Prepare("INSERT INTO pastebin(id, title, hash, data, delkey, expiry) values(?,?,?,?,?,?)")
 	check(err)
 	if title == "" {
-		_, err = stmt.Exec(id, id, sha, dataEscaped, delKey, expiryTime)
-		check(err)
-	} else {
-		_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
-		check(err)
+		title = id
 	}
+	_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
+	check(err)
 	return Response{id, title, sha, url, len(dataEscaped), delKey}
 }
 
