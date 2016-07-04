@@ -1,5 +1,5 @@
 // Package pastebin is a simple modern and powerful pastebin service
-package pastebin
+package main
 
 import (
 	"crypto/sha1"
@@ -215,14 +215,13 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch output {
 		case "json":
-
 			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(b)
-
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+
 		case "xml":
 			x, err := xml.MarshalIndent(b, "", "  ")
 			if err != nil {
@@ -296,10 +295,14 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	lang := vars["lang"]
+
 	s, title := getPaste(paste, lang)
+
+	// button links
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
 	clone := ADDRESS + "/clone/" + paste
+	// Page struct
 	p := &Page{
 		Title:    title,
 		Body:     []byte(s),
@@ -324,10 +327,15 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 func cloneHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
+
 	s, title := getPaste(paste, "")
+
+	// Page links
 	link := ADDRESS + "/raw/" + paste
 	download := ADDRESS + "/download/" + paste
 	clone := ADDRESS + "/clone/" + paste
+
+	// Clone page struct
 	p := &Page{
 		Title:    title,
 		Body:     []byte(s),
@@ -357,9 +365,17 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paste := vars["pasteId"]
 	s, _ := getPaste(paste, "")
+
 	// simply write string to browser
 	io.WriteString(w, s)
 
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	err := templates.ExecuteTemplate(w, "index.html", &Page{})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -372,7 +388,7 @@ func main() {
 	router.HandleFunc("/save", saveHandler)
 	router.HandleFunc("/save/{output}", saveHandler)
 	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
-	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("assets/"))))
+	router.HandleFunc("/", rootHandler)
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {
 		log.Fatal(err)
