@@ -98,7 +98,8 @@ func durationFromExpiry(expiry string) time.Duration {
 	return time.Hour * 24 * (365 * 20)
 }
 
-func save(raw string, lang string, title string, expiry string) []string {
+func save(raw string, lang string, title string, expiry string) Response {
+
 	db, err := sql.Open("mysql", DATABASE)
 	check(err)
 
@@ -110,7 +111,7 @@ func save(raw string, lang string, title string, expiry string) []string {
 			err := query.Scan(&id, &title, &hash, &paste, &delkey)
 			check(err)
 			url := ADDRESS + "/p/" + id
-			return []string{id, title, hash, url, paste, delkey}
+			return Response{id, title, hash, url, len(paste), delkey
 		}
 	}
 	id := generateName()
@@ -136,7 +137,7 @@ func save(raw string, lang string, title string, expiry string) []string {
 		check(err)
 	}
 	db.Close()
-	return []string{id, title, sha, url, dataEscaped, delKey}
+	return Response{id, title, sha, url, len(dataEscaped), delKey}
 }
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
@@ -175,15 +176,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Empty paste", 500)
 			return
 		}
-		values := save(paste, lang, title, expiry)
-		b := &Response{
-			ID:     values[0],
-			TITLE:  values[1],
-			HASH:   values[2],
-			URL:    values[3],
-			SIZE:   len(values[4]),
-			DELKEY: values[5],
-		}
+		b := save(paste, lang, title, expiry)
 
 		switch output {
 		case "json":
