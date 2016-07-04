@@ -1,4 +1,4 @@
-package main
+package pastebin
 
 import (
 	"crypto/sha1"
