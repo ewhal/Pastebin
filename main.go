@@ -112,16 +112,15 @@ func save(raw string, lang string, title string, expiry string) Response {
 			err := query.Scan(&id, &title, &hash, &paste, &delkey)
 			check(err)
 			url := ADDRESS + "/p/" + id
-			return Response{id, title, hash, url, len(paste), delkey
+			return Response{id, title, hash, url, len(paste), delkey}
 		}
 	}
 	id := generateName()
-	var url string
-	if lang == "" {
-		url = ADDRESS + "/p/" + id
-	} else {
-		url = ADDRESS + "/p/" + id + "/" + lang
+	url := ADDRESS + "/p/" + id
+	if lang != "" {
+		url += "/" + lang
 	}
+
 	const timeFormat = "2006-01-02 15:04:05"
 	expiryTime := time.Now().Add(durationFromExpiry(expiry)).Format(timeFormat)
 
