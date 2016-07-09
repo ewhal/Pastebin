@@ -366,6 +366,7 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 	paste := vars["pasteId"]
 	s, _ := getPaste(paste, "")
 
+	w.Header().Set("Content-Type", "plain/text")
 	// simply write string to browser
 	io.WriteString(w, s)
 
