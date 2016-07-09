@@ -241,7 +241,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, b.URL, 301)
 
 		default:
-			w.Header().Set("Content-Type", "plain/text")
+			w.Header().Set("Content-Type", "text/plain; charset=UTF-8; imeanit=yes")
 			io.WriteString(w, b.URL+"\n")
 			io.WriteString(w, "delete key: "+b.DELKEY+"\n")
 		}
