@@ -70,7 +70,7 @@ type Page struct {
 // check error handling function
 func check(err error) {
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }
 
