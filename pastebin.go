@@ -381,14 +381,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/p/{pasteId}", pasteHandler)
-	router.HandleFunc("/raw/{pasteId}", rawHandler)
-	router.HandleFunc("/p/{pasteId}/{lang}", pasteHandler)
-	router.HandleFunc("/clone/{pasteId}", cloneHandler)
-	router.HandleFunc("/download/{pasteId}", downloadHandler)
-	router.HandleFunc("/save", saveHandler)
-	router.HandleFunc("/save/{output}", saveHandler)
-	router.HandleFunc("/del/{pasteId}/{delKey}", delHandler)
+	router.HandleFunc("/p/{pasteId}", pasteHandler).Methods("GET")
+	router.HandleFunc("/raw/{pasteId}", rawHandler).Methods("GET")
+	router.HandleFunc("/p/{pasteId}/{lang}", pasteHandler).Methods("GET")
+	router.HandleFunc("/clone/{pasteId}", cloneHandler).Methods("GET")
+	router.HandleFunc("/download/{pasteId}", downloadHandler).Methods("GET")
+	router.HandleFunc("/p/{output}", saveHandler).Methods("POST")
+	router.HandleFunc("/p/{pasteId}/{delKey}", delHandler).Methods("DELETE")
 	router.HandleFunc("/", rootHandler)
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {

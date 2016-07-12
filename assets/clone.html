@@ -29,7 +29,7 @@
 			<div class="page-header">
 				<h1>{{.Title}}</h1>
 			</div>
-			<form action="/save/redirect" method="post" class="form-horizontal">
+			<form action="/p/redirect" method="post" class="form-horizontal">
 				<fieldset>
 					<div class="well" style="padding-top: 10px;">
 						<div class="form-group is-empty" style="margin-top: 0px;">
@@ -471,11 +471,13 @@
 				</fieldset>
 			</form>
 			<div class="well">
-				<code>$ &lt;command&gt; | curl -F 'p=&lt;-' https://p.pantsu.cat/save</code><br/>
-				<code>https://p.pantsu.cat/save/(XML|JSON|HTML)</code><br/>
-				<code>https://p.pantsu.cat/p/(PASTE)/(lang)</code><br/>
-				<code>https://p.pantsu.cat/del/(PASTE)/(DELKEY)</code><br/>
-				<code>pasteurl = urllib2.urlopen("https://p.pantsu.cat/save", "p="+ data).read()</code><br/>
+				<code>$ &lt;command&gt; | curl -X POST -F 'p=&lt;-' https://p.pantsu.cat/p</code><br/>
+				<code>POST https://p.pantsu.cat/p/(XML|JSON|HTML)</code><br/>
+				<code>GET: https://p.pantsu.cat/p/(PASTE)/(lang)</code><br/>
+				<code>GET: https://p.pantsu.cat/raw/(PASTE)</code><br/>
+				<code>GET: https://p.pantsu.cat/download/(PASTE)</code><br/>
+				<code>GET: https://p.pantsu.cat/clone/(PASTE)</code><br/>
+				<code>DEL: https://p.pantsu.cat/p/(PASTE)/(DELKEY)</code><br/>
 				<p>Source: <a href="https://github.com/ewhal/Pastebin">Github</a></p>
 			</div>
 		</div>
