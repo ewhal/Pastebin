@@ -1,6 +1,6 @@
-#Golang Pastebin 
+#Golang Pastebin
 [![Build Status](https://travis-ci.org/ewhal/Pastebin.svg?branch=master)](https://travis-ci.org/ewhal/Pastebin) [![GoDoc](https://godoc.org/github.com/ewhal/Pastebin?status.svg)](https://godoc.org/github.com/ewhal/Pastebin) [![Go Report Card](https://goreportcard.com/badge/github.com/ewhal/Pastebin)](https://goreportcard.com/report/github.com/ewhal/Pastebin) [![MIT
-licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/pomf/pomf/master/LICENSE)
+licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/pomf/pomf/master/LICENSE.md)
 
 Modern pastebin service with a restful like api written in golang.
 
@@ -11,15 +11,15 @@ Modern pastebin service with a restful like api written in golang.
 * pygmentize
 * go
 * mariadb
+
 ```
 pip install pygmentize
 sudo yum install -y go mariadb-server mariadb
-
 ```
 
 ### Installing
 
-* git clone https://github.com/ewhal/Pastebin
+* go get https://github.com/ewhal/Pastebin
 * nano pastebin.go
 * Configure port and database details
 * make
