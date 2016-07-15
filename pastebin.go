@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	// uniuri is used for easy random string generation
@@ -108,9 +107,9 @@ func Sha1(paste string) string {
 // DurationFromExpiry takes the expiry in string format and returns the duration
 // that the paste will exist for
 func DurationFromExpiry(expiry string) time.Duration {
-	i, err := strconv.ParseInt(expiry, 10, 64)
+	duration, err := time.ParseDuration(expiry)
 	Check(err)
-	return time.Hour * time.Duration(i)
+	return duration
 }
 
 // Save function handles the saving of each paste.
