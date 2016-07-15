@@ -108,6 +108,9 @@ func Sha1(paste string) string {
 // DurationFromExpiry takes the expiry in string format and returns the duration
 // that the paste will exist for
 func DurationFromExpiry(expiry string) time.Duration {
+	if expiry == "" {
+		expiry = "P20Y"
+	}
 	dura, err := duration.FromString(expiry) // dura is time.Duration type
 	Check(err)
 
