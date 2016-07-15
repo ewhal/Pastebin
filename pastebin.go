@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"time"
 
+	duration "github.com/channelmeter/iso8601duration"
 	// uniuri is used for easy random string generation
 	"github.com/dchest/uniuri"
 	// pygments is used for syntax highlighting
@@ -136,8 +137,15 @@ func Save(raw string, lang string, title string, expiry string) Response {
 	}
 
 	const timeFormat = "2006-01-02 15:04:05"
-	duration, err := time.ParseDuration(expiry)
-	Check(err)
+
+	expiry = "P" + expiry
+	dura, err := duration.FromString(expiry) // dura is time.Duration type
+
+	if err != nil {
+		fmt.Println("Error : ", err)
+	}
+
+	duration := dura.ToDuration()
 	expiryTime := time.Now().Add(duration).Format(timeFormat)
 
 	delKey := uniuri.NewLen(40)

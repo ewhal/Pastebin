@@ -13,6 +13,7 @@ install:
 	go get github.com/ewhal/pygments
 	go get github.com/go-sql-driver/mysql
 	go get github.com/gorilla/mux
+	go get github.com/ChannelMeter/iso8601duration
 
 test: install
 	go test $(GOFLAGS) ./...
