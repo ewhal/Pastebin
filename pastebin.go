@@ -52,7 +52,7 @@ var syntax, _ = ioutil.ReadFile("assets/syntax.html")
 type Response struct {
 	ID     string `json:"id"`
 	TITLE  string `json:"title"`
-	HASH   string `json:"hash"`
+	SHA1   string `json:"sha1"`
 	URL    string `json:"url"`
 	SIZE   int    `json:"size"`
 	DELKEY string `json:"delkey"`
