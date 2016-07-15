@@ -138,12 +138,8 @@ func Save(raw string, lang string, title string, expiry string) Response {
 
 	const timeFormat = "2006-01-02 15:04:05"
 
-	expiry = "P" + expiry
 	dura, err := duration.FromString(expiry) // dura is time.Duration type
-
-	if err != nil {
-		fmt.Println("Error : ", err)
-	}
+	Check(err)
 
 	duration := dura.ToDuration()
 	expiryTime := time.Now().Add(duration).Format(timeFormat)
