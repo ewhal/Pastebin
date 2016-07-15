@@ -4,6 +4,6 @@ CREATE TABLE `pastebin` (
   `hash` char(40) default NULL,
   `data` longtext,
   `delkey` char(40) default NULL,
-  `expiry` TIMESTAMP,
+  `expiry` DATETIME,
   PRIMARY KEY (`id`)
 );
