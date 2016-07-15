@@ -105,6 +105,17 @@ func Sha1(paste string) string {
 	return sha
 }
 
+// DurationFromExpiry takes the expiry in string format and returns the duration
+// that the paste will exist for
+func DurationFromExpiry(expiry string) time.Duration {
+	dura, err := duration.FromString(expiry) // dura is time.Duration type
+	Check(err)
+
+	duration := dura.ToDuration()
+
+	return duration
+}
+
 // Save function handles the saving of each paste.
 // raw string is the raw paste input
 // lang string is the user specified language for syntax highlighting
@@ -137,12 +148,7 @@ func Save(raw string, lang string, title string, expiry string) Response {
 	}
 
 	const timeFormat = "2006-01-02 15:04:05"
-
-	dura, err := duration.FromString(expiry) // dura is time.Duration type
-	Check(err)
-
-	duration := dura.ToDuration()
-	expiryTime := time.Now().Add(duration).Format(timeFormat)
+	expiryTime := time.Now().Add(DurationFromExpiry(expiry)).Format(timeFormat)
 
 	delKey := uniuri.NewLen(40)
 	dataEscaped := html.EscapeString(raw)
