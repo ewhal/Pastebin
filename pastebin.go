@@ -95,8 +95,8 @@ func GenerateName() string {
 
 }
 
-// Hash hashes paste into a sha1 hash
-func Hash(paste string) string {
+// Sha1 hashes paste into a sha1 hash
+func Sha1(paste string) string {
 	hasher := sha1.New()
 
 	hasher.Write([]byte(paste))
@@ -139,7 +139,7 @@ func Save(raw string, lang string, title string, expiry string) Response {
 	defer db.Close()
 
 	// hash paste data and query database to see if paste exists
-	sha := Hash(raw)
+	sha := Sha1(raw)
 	query, err := db.Query("select id, title, hash, data, delkey from pastebin where hash=?", sha)
 
 	if err != sql.ErrNoRows {
