@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"html"
 	"html/template"
@@ -28,19 +27,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var (
+const (
 	// ADDRESS that pastebin will return links for
-	ADDRESS string
+	ADDRESS = "http://localhost:9900"
 	// LENGTH of paste id
-	LENGTH int
+	LENGTH = 6
 	// PORT that pastebin will listen on
-	PORT string
+	PORT = ":9900"
 	// USERNAME for database
-	USERNAME string
+	USERNAME = ""
 	// PASS database password
-	PASS string
+	PASS = ""
 	// NAME database name
-	NAME string
+	NAME = ""
 	// DATABASE connection String
 	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
 )
@@ -381,14 +380,6 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	flag.StringVar(&ADDRESS, "address", "", "host to serve pastes on")
-	flag.StringVar(&PORT, "port", ":9990", "host to serve pastes on")
-	flag.StringVar(&USERNAME, "db-username", "", "db username")
-	flag.StringVar(&PASS, "db-pass", "", "db pass")
-	flag.StringVar(&NAME, "db-name", "", "db name")
-	flag.IntVar(&LENGTH, "id-length", 6, "length of uploaded file IDs")
-	flag.Parse()
-
 	router := mux.NewRouter()
 	router.HandleFunc("/p/{pasteId}", PasteHandler).Methods("GET")
 	router.HandleFunc("/raw/{pasteId}", RawHandler).Methods("GET")

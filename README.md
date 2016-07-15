@@ -25,11 +25,8 @@ sudo yum install -y go mariadb-server mariadb
 
 * go get https://github.com/ewhal/Pastebin
 * nano pastebin.go
+* Configure port and database details
 * make
-```
-./pastebin --db-name="pastes" --db-username="pastebin" --db-pass=""
---port=":9900" --length=6
-```
 
 ## License
 
