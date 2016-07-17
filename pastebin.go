@@ -1,5 +1,5 @@
 // Package pastebin is a simple modern and powerful pastebin service
-package pastebin
+package main
 
 import (
 	"crypto/sha1"
