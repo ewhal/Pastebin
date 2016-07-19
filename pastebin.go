@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	duration "github.com/channelmeter/iso8601duration"
@@ -45,7 +46,7 @@ type Configuration struct {
 var configuration Configuration
 
 // DATABASE connection String
-var DATABASE = configuration.Username + ":" + configuration.Pass + "@/" + configuration.Name + "?charset=utf8"
+var DATABASE string
 
 // Template pages
 var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
@@ -383,7 +384,21 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	file, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+	decoder := json.NewDecoder(file)
+	configuration := Configuration{}
+	err = decoder.Decode(&configuration)
+	if err != nil {
+		panic(err)
+	}
+
+	DATABASE = configuration.Username + ":" + configuration.Pass + "@/" + configuration.Name + "?charset=utf8"
+	// create new mux router
 	router := mux.NewRouter()
+
 	router.HandleFunc("/p/{pasteId}", PasteHandler).Methods("GET")
 	router.HandleFunc("/raw/{pasteId}", RawHandler).Methods("GET")
 	router.HandleFunc("/p/{pasteId}/{lang}", PasteHandler).Methods("GET")
@@ -393,7 +408,7 @@ func main() {
 	router.HandleFunc("/p/{output}", SaveHandler).Methods("POST")
 	router.HandleFunc("/p/{pasteId}/{delKey}", DelHandler).Methods("DELETE")
 	router.HandleFunc("/", RootHandler)
-	err := http.ListenAndServe(configuration.Port, router)
+	err = http.ListenAndServe(configuration.Port, router)
 	if err != nil {
 		log.Fatal(err)
 	}
