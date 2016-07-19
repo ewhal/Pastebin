@@ -24,9 +24,10 @@ sudo yum install -y go mariadb-server mariadb
 ### Installing
 
 * go get https://github.com/ewhal/Pastebin
-* nano pastebin.go
-* Configure port and database details
 * make
+* cp config.example.json config.json
+* nano config.json
+* Configure port and database details
 
 ## License
 
