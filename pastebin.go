@@ -27,22 +27,25 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
+type Configuration struct {
 	// ADDRESS that pastebin will return links for
-	ADDRESS = "http://localhost:9900"
+	Address string
 	// LENGTH of paste id
-	LENGTH = 6
+	Length int
 	// PORT that pastebin will listen on
-	PORT = ":9900"
+	Port string
 	// USERNAME for database
-	USERNAME = ""
+	Username string
 	// PASS database password
-	PASS = ""
+	Pass string
 	// NAME database name
-	NAME = ""
-	// DATABASE connection String
-	DATABASE = USERNAME + ":" + PASS + "@/" + NAME + "?charset=utf8"
-)
+	Name string
+}
+
+var configuration Configuration
+
+// DATABASE connection String
+var DATABASE = configuration.Username + ":" + configuration.Pass + "@/" + configuration.Name + "?charset=utf8"
 
 // Template pages
 var templates = template.Must(template.ParseFiles("assets/paste.html", "assets/index.html", "assets/clone.html"))
@@ -79,7 +82,7 @@ func Check(err error) {
 // database
 func GenerateName() string {
 	// use uniuri to generate random string
-	id := uniuri.NewLen(LENGTH)
+	id := uniuri.NewLen(configuration.Length)
 
 	db, err := sql.Open("mysql", DATABASE)
 	Check(err)
@@ -140,12 +143,12 @@ func Save(raw string, lang string, title string, expiry string) Response {
 			var id, title, hash, paste, delkey string
 			err := query.Scan(&id, &title, &hash, &paste, &delkey)
 			Check(err)
-			url := ADDRESS + "/p/" + id
+			url := configuration.Address + "/p/" + id
 			return Response{id, title, hash, url, len(paste), delkey}
 		}
 	}
 	id := GenerateName()
-	url := ADDRESS + "/p/" + id
+	url := configuration.Address + "/p/" + id
 	if lang != "" {
 		url += "/" + lang
 	}
@@ -228,7 +231,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		case "html":
 			w.Header().Set("Content-Type", "text/html")
 			io.WriteString(w, "<p><b>URL</b>: <a href='"+b.URL+"'>"+b.URL+"</a></p>")
-			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+ADDRESS+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
+			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+configuration.Address+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
 
 		case "redirect":
 			http.Redirect(w, r, b.URL, 301)
@@ -293,15 +296,15 @@ func PasteHandler(w http.ResponseWriter, r *http.Request) {
 	s, title := GetPaste(paste, lang)
 
 	// button links
-	link := ADDRESS + "/raw/" + paste
-	download := ADDRESS + "/download/" + paste
-	clone := ADDRESS + "/clone/" + paste
+	link := configuration.Address + "/raw/" + paste
+	download := configuration.Address + "/download/" + paste
+	clone := configuration.Address + "/clone/" + paste
 	// Page struct
 	p := &Page{
 		Title:    title,
 		Body:     []byte(s),
 		Raw:      link,
-		Home:     ADDRESS,
+		Home:     configuration.Address,
 		Download: download,
 		Clone:    clone,
 	}
@@ -326,16 +329,16 @@ func CloneHandler(w http.ResponseWriter, r *http.Request) {
 	s, title := GetPaste(paste, "")
 
 	// Page links
-	link := ADDRESS + "/raw/" + paste
-	download := ADDRESS + "/download/" + paste
-	clone := ADDRESS + "/clone/" + paste
+	link := configuration.Address + "/raw/" + paste
+	download := configuration.Address + "/download/" + paste
+	clone := configuration.Address + "/clone/" + paste
 
 	// Clone page struct
 	p := &Page{
 		Title:    title,
 		Body:     []byte(s),
 		Raw:      link,
-		Home:     ADDRESS,
+		Home:     configuration.Address,
 		Download: download,
 		Clone:    clone,
 	}
@@ -390,7 +393,7 @@ func main() {
 	router.HandleFunc("/p/{output}", SaveHandler).Methods("POST")
 	router.HandleFunc("/p/{pasteId}/{delKey}", DelHandler).Methods("DELETE")
 	router.HandleFunc("/", RootHandler)
-	err := http.ListenAndServe(PORT, router)
+	err := http.ListenAndServe(configuration.Port, router)
 	if err != nil {
 		log.Fatal(err)
 	}
