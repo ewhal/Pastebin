@@ -37,7 +37,7 @@ type Configuration struct {
 	// USERNAME for database
 	Username string
 	// PASS database password
-	Pass string
+	Password string
 	// NAME database name
 	Name string
 }
@@ -218,6 +218,9 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		b := Save(paste, lang, title, expiry)
 
 		switch output {
+		case "redirect":
+			http.Redirect(w, r, b.URL, 301)
+
 		default:
 			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(b)
@@ -226,8 +229,6 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-		case "redirect":
-			http.Redirect(w, r, b.URL, 301)
 		}
 	}
 
@@ -397,7 +398,7 @@ func main() {
 		panic(err)
 	}
 
-	DATABASE = configuration.Username + ":" + configuration.Pass + "@/" + configuration.Name + "?charset=utf8"
+	DATABASE = configuration.Username + ":" + configuration.Password + "@/" + configuration.Name + "?charset=utf8"
 	// create new mux router
 	router := mux.NewRouter()
 
