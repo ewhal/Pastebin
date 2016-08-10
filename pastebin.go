@@ -91,7 +91,7 @@ func GenerateName() string {
 	Check(err)
 	defer db.Close()
 	// query database if id exists and if it does call generateName again
-	query, err = db.Query("select id from pastebin where id=?", id)
+	query, err := db.Query("select id from pastebin where id=?", id)
 	if err != sql.ErrNoRows {
 		for query.Next() {
 			GenerateName()
