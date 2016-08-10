@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"html"
 	"html/template"
@@ -54,12 +53,14 @@ var syntax, _ = ioutil.ReadFile("assets/syntax.html")
 
 // Response API struct
 type Response struct {
-	ID     string `json:"id"`
-	TITLE  string `json:"title"`
-	SHA1   string `json:"sha1"`
-	URL    string `json:"url"`
-	SIZE   int    `json:"size"`
-	DELKEY string `json:"delkey"`
+	SUCCESS bool   `json:"success"`
+	STATUS  string `json:"status"`
+	ID      string `json:"id"`
+	TITLE   string `json:"title"`
+	SHA1    string `json:"sha1"`
+	URL     string `json:"url"`
+	SIZE    int    `json:"size"`
+	DELKEY  string `json:"delkey"`
 }
 
 // Page generation struct
@@ -145,7 +146,7 @@ func Save(raw string, lang string, title string, expiry string) Response {
 			err := query.Scan(&id, &title, &hash, &paste, &delkey)
 			Check(err)
 			url := configuration.Address + "/p/" + id
-			return Response{id, title, hash, url, len(paste), delkey}
+			return Response{true, "saved", id, title, hash, url, len(paste), delkey}
 		}
 	}
 	id := GenerateName()
@@ -168,7 +169,7 @@ func Save(raw string, lang string, title string, expiry string) Response {
 	_, err = stmt.Exec(id, html.EscapeString(title), sha, dataEscaped, delKey, expiryTime)
 	Check(err)
 
-	return Response{id, title, sha, url, len(dataEscaped), delKey}
+	return Response{true, "saved", id, title, sha, url, len(dataEscaped), delKey}
 }
 
 // DelHandler checks to see if delkey and pasteid exist in the database.
@@ -176,7 +177,7 @@ func Save(raw string, lang string, title string, expiry string) Response {
 func DelHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["pasteId"]
-	delkey := vars["delKey"]
+	delkey := r.FormValue("delkey")
 
 	db, err := sql.Open("mysql", DATABASE)
 	Check(err)
@@ -190,7 +191,13 @@ func DelHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = res.RowsAffected()
 	if err != sql.ErrNoRows {
-		io.WriteString(w, id+" deleted")
+		w.Header().Set("Content-Type", "application/json")
+		b := Response{STATUS: "DELETED " + id}
+		err := json.NewEncoder(w).Encode(b)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -211,7 +218,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		b := Save(paste, lang, title, expiry)
 
 		switch output {
-		case "json":
+		default:
 			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(b)
 			if err != nil {
@@ -219,28 +226,8 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-		case "xml":
-			x, err := xml.MarshalIndent(b, "", "  ")
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/xml")
-			w.Write(x)
-
-		case "html":
-			w.Header().Set("Content-Type", "text/html")
-			io.WriteString(w, "<p><b>URL</b>: <a href='"+b.URL+"'>"+b.URL+"</a></p>")
-			io.WriteString(w, "<p><b>Delete Key</b>: <a href='"+configuration.Address+"/del/"+b.ID+"/"+b.DELKEY+"'>"+b.DELKEY+"</a></p>")
-
 		case "redirect":
 			http.Redirect(w, r, b.URL, 301)
-
-		default:
-			w.Header().Set("Content-Type", "text/plain; charset=UTF-8; imeanit=yes")
-			io.WriteString(w, b.URL+"\n")
-			io.WriteString(w, "delete key: "+b.DELKEY+"\n")
 		}
 	}
 
@@ -269,7 +256,7 @@ func GetPaste(paste string, lang string) (string, string) {
 	var expiry string
 	err = db.QueryRow("select title, data, expiry from pastebin where id=?", param1).Scan(&title, &s, &expiry)
 	Check(err)
-	if time.Now().Format("2006-01-02 15:04:05") > expiry {
+	if time.Now().Format("2006-01-02 15:04:05") >= expiry {
 		stmt, err := db.Prepare("delete from pastebin where id=?")
 		Check(err)
 		_, err = stmt.Exec(param1)
@@ -286,6 +273,21 @@ func GetPaste(paste string, lang string) (string, string) {
 		return high, html.UnescapeString(title)
 	}
 	return html.UnescapeString(s), html.UnescapeString(title)
+}
+
+// APIHandler handles get requests of pastes
+func APIHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	paste := vars["pasteId"]
+
+	b, _ := GetPaste(paste, "")
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(b)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 // PasteHandler handles the generation of paste pages with the links
@@ -399,14 +401,17 @@ func main() {
 	// create new mux router
 	router := mux.NewRouter()
 
+	// serverside rending stuff
 	router.HandleFunc("/p/{pasteId}", PasteHandler).Methods("GET")
 	router.HandleFunc("/raw/{pasteId}", RawHandler).Methods("GET")
 	router.HandleFunc("/p/{pasteId}/{lang}", PasteHandler).Methods("GET")
 	router.HandleFunc("/clone/{pasteId}", CloneHandler).Methods("GET")
 	router.HandleFunc("/download/{pasteId}", DownloadHandler).Methods("GET")
-	router.HandleFunc("/p", SaveHandler).Methods("POST")
-	router.HandleFunc("/p/{output}", SaveHandler).Methods("POST")
-	router.HandleFunc("/p/{pasteId}/{delKey}", DelHandler).Methods("DELETE")
+	// api
+	router.HandleFunc("/api", SaveHandler).Methods("POST")
+	router.HandleFunc("/api/{output}", SaveHandler).Methods("POST")
+	router.HandleFunc("/api/{pasteid}", APIHandler).Methods("GET")
+	router.HandleFunc("/api/{pasteId}", DelHandler).Methods("DELETE")
 	router.HandleFunc("/", RootHandler)
 	err = http.ListenAndServe(configuration.Port, router)
 	if err != nil {
