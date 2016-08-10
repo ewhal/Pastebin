@@ -84,15 +84,18 @@ func Check(err error) {
 // database
 func GenerateName() string {
 	// use uniuri to generate random string
-	id := uniuri.NewLen(configuration.Length)
+	// hardcode this for now until I figure out why json isn't parsing correctly
+	id := uniuri.NewLen(6)
 
 	db, err := sql.Open("mysql", DATABASE)
 	Check(err)
 	defer db.Close()
 	// query database if id exists and if it does call generateName again
-	_, err = db.Query("select id from pastebin where id=?", id)
+	query, err = db.Query("select id from pastebin where id=?", id)
 	if err != sql.ErrNoRows {
-		GenerateName()
+		for query.Next() {
+			GenerateName()
+		}
 	}
 
 	return id
@@ -390,7 +393,6 @@ func main() {
 		panic(err)
 	}
 	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		panic(err)
