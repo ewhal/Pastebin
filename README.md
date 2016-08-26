@@ -24,7 +24,7 @@ sudo yum install -y go mariadb-server mariadb
 ### Installing
 
 * go get https://github.com/ewhal/Pastebin
-* make
+* make will automatically download the dependencies for Pastebin
 * cp config.example.json config.json
 * nano config.json
 * Configure port and database details
