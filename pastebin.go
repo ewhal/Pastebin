@@ -16,7 +16,7 @@ import (
 	"os"
 	"time"
 
-	duration "github.com/channelmeter/iso8601duration"
+	duration "github.com/ChannelMeter/iso8601duration"
 	// uniuri is used for easy random string generation
 	"github.com/dchest/uniuri"
 	// pygments is used for syntax highlighting
