@@ -25,6 +25,13 @@ sudo yum install -y go mariadb-server mariadb
 
 * go get https://github.com/ewhal/Pastebin
 * make will automatically download the dependencies for Pastebin
+* mysql -u root -p
+* CREATE USER 'paste'@'localhost' IDENTIFIED BY 'password';
+* CREATE database paste;
+* GRANT ALL PRIVILEGES ON paste . * TO 'paste'@'localhost';
+* FLUSH PRIVILEGES;
+* quit;
+* mysql -u paste -p paste < database.sql
 * cp config.example.json config.json
 * nano config.json
 * Configure port and database details
