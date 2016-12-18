@@ -1,498 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>Pantsu Paste</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<!-- Material Design fonts -->
-		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <title>{{ .Title }}</title>
 
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/bootstrap-material-design.min.css" integrity="sha256-j3CLSRG31GkOu6kaeLh7XsRgL2YNvRl9aOtXoAYt320=" crossorigin="anonymous">
+    <!-- Material Design fonts -->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/bootstrap-material-design.min.css" integrity="sha256-j3CLSRG31GkOu6kaeLh7XsRgL2YNvRl9aOtXoAYt320=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/ripples.min.css" integrity="sha256-+Og2qJI9qzvKYwhGo/LYXg0FzE1BhEQfDsUSjKXQ3Bg=" crossorigin="anonymous">
 
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/ripples.min.css" integrity="sha256-+Og2qJI9qzvKYwhGo/LYXg0FzE1BhEQfDsUSjKXQ3Bg=" crossorigin="anonymous">
+    <!-- Sweetalert css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
 
+    <!-- pastebin stylesheet -->
+    <link rel="stylesheet" type="text/css" href="/assets/pastebin.css">
+  </head>
 
-		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-		<!--[if lt IE 9]>
-		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-		<![endif]-->
-	</head>
-	<body>
-		<div class="container">
-			<div class="page-header">
-				<h1>Pantsu Paste</h1>
-			</div>
-			<form action="/api/redirect" method="post" class="form-horizontal">
-				<fieldset>
-					<div class="well" style="padding-top: 10px; resize: both;">
-						<div class="form-group is-empty" style="margin-top: 0px;">
-							<textarea class="form-control" rows="1" id="textArea" name="title" placeholder="Title"></textarea>
-							<span class="help-block">Paste Title</span>
-						</div>
-						<div class="form-group is-empty" style="margin-top: 0px;">
-							<textarea class="form-control" rows="20" id="textArea" name="p" placeholder="Paste" style="resize: both;" data-autoresize></textarea>
-							<span class="help-block">Paste your text here</span>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-12">
-							<div class="form-inline">
-								<label for="syntax" class="col-sm-1 control-label">Language</label>
-								<select id="lang" name="lang" class="form-control">
-									<option value="" selected="selected">[Raw paste]</option>
-									<option label=" " value=""> </option>
-									<option value="abap">ABAP</option>
-									<option value="abnf">ABNF</option>
-									<option value="as">ActionScript</option>
-									<option value="as3">ActionScript 3</option>
-									<option value="ada">Ada</option>
-									<option value="adl">ADL</option>
-									<option value="agda">Agda</option>
-									<option value="alloy">Alloy</option>
-									<option value="at">AmbientTalk</option>
-									<option value="antlr">ANTLR</option>
-									<option value="antlr-as">ANTLR With ActionScript Target</option>
-									<option value="antlr-csharp">ANTLR With C# Target</option>
-									<option value="antlr-cpp">ANTLR With CPP Target</option>
-									<option value="antlr-java">ANTLR With Java Target</option>
-									<option value="antlr-objc">ANTLR With ObjectiveC Target</option>
-									<option value="antlr-perl">ANTLR With Perl Target</option>
-									<option value="antlr-python">ANTLR With Python Target</option>
-									<option value="antlr-rb">ANTLR With Ruby Target</option>
-									<option value="aconf">ApacheConf</option>
-									<option value="apl">APL</option>
-									<option value="applescript">AppleScript</option>
-									<option value="arduino">Arduino</option>
-									<option value="aspectj">AspectJ</option>
-									<option value="aspx-cs">aspx-cs</option>
-									<option value="aspx-vb">aspx-vb</option>
-									<option value="asy">Asymptote</option>
-									<option value="ahk">autohotkey</option>
-									<option value="autoit">AutoIt</option>
-									<option value="awk">Awk</option>
-									<option value="basemake">Base Makefile</option>
-									<option value="sh">Bash</option>
-									<option value="console">Bash Session</option>
-									<option value="bat">Batchfile</option>
-									<option value="bbcode">BBCode</option>
-									<option value="bc">BC</option>
-									<option value="befunge">Befunge</option>
-									<option value="b3d">BlitzBasic</option>
-									<option value="bmax">BlitzMax</option>
-									<option value="bnf">BNF</option>
-									<option value="boo">Boo</option>
-									<option value="boogie">Boogie</option>
-									<option value="bf">Brainfuck</option>
-									<option value="bro">Bro</option>
-									<option value="bugs">BUGS</option>
-									<option value="c">C</option>
-									<option value="csharp">C#</option>
-									<option value="cpp">C++</option>
-									<option value="c-objdump">c-objdump</option>
-									<option value="ca65">ca65 assembler</option>
-									<option value="cadl">cADL</option>
-									<option value="idl4">CAmkES</option>
-									<option value="cbmbas">CBM BASIC V2</option>
-									<option value="ceylon">Ceylon</option>
-									<option value="cf3">CFEngine3</option>
-									<option value="cfs">cfstatement</option>
-									<option value="chai">ChaiScript</option>
-									<option value="chpl">Chapel</option>
-									<option value="cheetah">Cheetah</option>
-									<option value="cirru">Cirru</option>
-									<option value="clay">Clay</option>
-									<option value="clj">Clojure</option>
-									<option value="cljs">ClojureScript</option>
-									<option value="cmake">CMake</option>
-									<option value="cobol">COBOL</option>
-									<option value="cobolfree">COBOLFree</option>
-									<option value="coffee">CoffeeScript</option>
-									<option value="cfc">Coldfusion CFC</option>
-									<option value="cfm">Coldfusion HTML</option>
-									<option value="cl">Common Lisp</option>
-									<option value="cp">Component Pascal</option>
-									<option value="coq">Coq</option>
-									<option value="cpp-objdump">cpp-objdump</option>
-									<option value="cpsa">CPSA</option>
-									<option value="pcmk">Crmsh</option>
-									<option value="croc">Croc</option>
-									<option value="cry">Cryptol</option>
-									<option value="csound-csd">Csound Document</option>
-									<option value="csound">Csound Orchestra</option>
-									<option value="csound-sco">Csound Score</option>
-									<option value="css">CSS</option>
-									<option value="css+jinja">CSS+Django/Jinja</option>
-									<option value="css+genshi">CSS+Genshi Text</option>
-									<option value="css+lasso">CSS+Lasso</option>
-									<option value="css+mako">CSS+Mako</option>
-									<option value="css+mozpreproc">CSS+mozpreproc</option>
-									<option value="css+myghty">CSS+Myghty</option>
-									<option value="css+php">CSS+PHP</option>
-									<option value="css+erb">CSS+Ruby</option>
-									<option value="css+smarty">CSS+Smarty</option>
-									<option value="cu">CUDA</option>
-									<option value="cypher">Cypher</option>
-									<option value="pyx">Cython</option>
-									<option value="d">D</option>
-									<option value="d-objdump">d-objdump</option>
-									<option value="dpatch">Darcs Patch</option>
-									<option value="dart">Dart</option>
-									<option value="control">Debian Control file</option>
-									<option value="debsources">Debian Sourcelist</option>
-									<option value="pas">Delphi</option>
-									<option value="dg">dg</option>
-									<option value="diff">Diff</option>
-									<option value="jinja">Django/Jinja</option>
-									<option value="docker">Docker</option>
-									<option value="dtd">DTD</option>
-									<option value="duel">Duel</option>
-									<option value="dylan">Dylan</option>
-									<option value="dylan-repl">Dylan session</option>
-									<option value="lid">DylanLID</option>
-									<option value="eg">Earl Grey</option>
-									<option value="easytrieve">Easytrieve</option>
-									<option value="ebnf">EBNF</option>
-									<option value="ec">eC</option>
-									<option value="ecl">ECL</option>
-									<option value="eiffel">Eiffel</option>
-									<option value="ex">Elixir</option>
-									<option value="iex">Elixir iex session</option>
-									<option value="elm">Elm</option>
-									<option value="emacs">EmacsLisp</option>
-									<option value="ragel-em">Embedded Ragel</option>
-									<option value="erb">ERB</option>
-									<option value="erlang">Erlang</option>
-									<option value="erl">Erlang erl session</option>
-									<option value="evoque">Evoque</option>
-									<option value="ezhil">Ezhil</option>
-									<option value="factor">Factor</option>
-									<option value="fy">Fancy</option>
-									<option value="fan">Fantom</option>
-									<option value="flx">Felix</option>
-									<option value="fish">Fish</option>
-									<option value="fortran">Fortran</option>
-									<option value="fortranfixed">FortranFixed</option>
-									<option value="vfp">FoxPro</option>
-									<option value="fsharp">FSharp</option>
-									<option value="gap">GAP</option>
-									<option value="gas">GAS</option>
-									<option value="kid">Genshi</option>
-									<option value="genshitext">Genshi Text</option>
-									<option value="po">Gettext Catalog</option>
-									<option value="gherkin">Gherkin</option>
-									<option value="glsl">GLSL</option>
-									<option value="gnuplot">Gnuplot</option>
-									<option value="go">Go</option>
-									<option value="golo">Golo</option>
-									<option value="gooddata-cl">GoodData-CL</option>
-									<option value="gosu">Gosu</option>
-									<option value="gst">Gosu Template</option>
-									<option value="man">Groff</option>
-									<option value="groovy">Groovy</option>
-									<option value="haml">Haml</option>
-									<option value="handlebars">Handlebars</option>
-									<option value="hs">Haskell</option>
-									<option value="hx">Haxe</option>
-									<option value="hexdump">Hexdump</option>
-									<option value="html">HTML</option>
-									<option value="htmlcheetah">HTML+Cheetah</option>
-									<option value="html+jinja">HTML+Django/Jinja</option>
-									<option value="html+evoque">HTML+Evoque</option>
-									<option value="html+kid">HTML+Genshi</option>
-									<option value="html+handlebars">HTML+Handlebars</option>
-									<option value="html+lasso">HTML+Lasso</option>
-									<option value="html+mako">HTML+Mako</option>
-									<option value="html+myghty">HTML+Myghty</option>
-									<option value="html+php">HTML+PHP</option>
-									<option value="html+smarty">HTML+Smarty</option>
-									<option value="html+twig">HTML+Twig</option>
-									<option value="html+velocity">HTML+Velocity</option>
-									<option value="http">HTTP</option>
-									<option value="hxml">Hxml</option>
-									<option value="hylang">Hy</option>
-									<option value="hy">Hybris</option>
-									<option value="idl">IDL</option>
-									<option value="idr">Idris</option>
-									<option value="igor">Igor</option>
-									<option value="i6">Inform 6</option>
-									<option value="i6t">Inform 6 template</option>
-									<option value="i7">Inform 7</option>
-									<option value="ini">INI</option>
-									<option value="io">Io</option>
-									<option value="ik">Ioke</option>
-									<option value="irc">IRC logs</option>
-									<option value="isabelle">Isabelle</option>
-									<option value="j">J</option>
-									<option value="jade">Jade</option>
-									<option value="jags">JAGS</option>
-									<option value="jasmin">Jasmin</option>
-									<option value="java">Java</option>
-									<option value="jsp">Java Server Page</option>
-									<option value="js">JavaScript</option>
-									<option value="js+cheetah">JavaScript+Cheetah</option>
-									<option value="js+jinja">JavaScript+Django/Jinja</option>
-									<option value="js+genshi">JavaScript+Genshi Text</option>
-									<option value="js+lasso">JavaScript+Lasso</option>
-									<option value="js+mako">JavaScript+Mako</option>
-									<option value="javascript+mozpreproc">Javascript+mozpreproc</option>
-									<option value="js+myghty">JavaScript+Myghty</option>
-									<option value="js+php">JavaScript+PHP</option>
-									<option value="js+erb">JavaScript+Ruby</option>
-									<option value="js+smarty">JavaScript+Smarty</option>
-									<option value="jcl">JCL</option>
-									<option value="json">JSON</option>
-									<option value="jsonld">JSON-LD</option>
-									<option value="jl">Julia</option>
-									<option value="jlcon">Julia console</option>
-									<option value="kal">Kal</option>
-									<option value="kconfig">Kconfig</option>
-									<option value="koka">Koka</option>
-									<option value="kotlin">Kotlin</option>
-									<option value="lasso">Lasso</option>
-									<option value="lean">Lean</option>
-									<option value="less">LessCss</option>
-									<option value="lighty">Lighttpd configuration file</option>
-									<option value="limbo">Limbo</option>
-									<option value="liquid">liquid</option>
-									<option value="lagda">Literate Agda</option>
-									<option value="lcry">Literate Cryptol</option>
-									<option value="lhs">Literate Haskell</option>
-									<option value="lidr">Literate Idris</option>
-									<option value="livescript">LiveScript</option>
-									<option value="llvm">LLVM</option>
-									<option value="logos">Logos</option>
-									<option value="logtalk">Logtalk</option>
-									<option value="lsl">LSL</option>
-									<option value="lua">Lua</option>
-									<option value="mf">Makefile</option>
-									<option value="mako">Mako</option>
-									<option value="maql">MAQL</option>
-									<option value="mask">Mask</option>
-									<option value="mason">Mason</option>
-									<option value="nb">Mathematica</option>
-									<option value="matlab">Matlab</option>
-									<option value="matlabsession">Matlab session</option>
-									<option value="minid">MiniD</option>
-									<option value="modelica">Modelica</option>
-									<option value="m2">Modula-2</option>
-									<option value="moin">MoinMoin/Trac Wiki markup</option>
-									<option value="monkey">Monkey</option>
-									<option value="moo">MOOCode</option>
-									<option value="moon">MoonScript</option>
-									<option value="mozhashpreproc">mozhashpreproc</option>
-									<option value="mozpercentpreproc">mozpercentpreproc</option>
-									<option value="mql">MQL</option>
-									<option value="msc">Mscgen</option>
-									<option value="doscon">MSDOS Session</option>
-									<option value="mupad">MuPAD</option>
-									<option value="mxml">MXML</option>
-									<option value="myghty">Myghty</option>
-									<option value="mysql">MySQL</option>
-									<option value="nasm">NASM</option>
-									<option value="nemerle">Nemerle</option>
-									<option value="nesc">nesC</option>
-									<option value="newlisp">NewLisp</option>
-									<option value="newspeak">Newspeak</option>
-									<option value="nginx">Nginx configuration file</option>
-									<option value="nim">Nimrod</option>
-									<option value="nit">Nit</option>
-									<option value="nix">Nix</option>
-									<option value="nsi">NSIS</option>
-									<option value="numpy">NumPy</option>
-									<option value="objdump">objdump</option>
-									<option value="objdump-nasm">objdump-nasm</option>
-									<option value="objc">Objective-C</option>
-									<option value="objc++">Objective-C++</option>
-									<option value="objj">Objective-J</option>
-									<option value="ocaml">OCaml</option>
-									<option value="octave">Octave</option>
-									<option value="odin">ODIN</option>
-									<option value="ooc">Ooc</option>
-									<option value="opa">Opa</option>
-									<option value="abl">OpenEdge ABL</option>
-									<option value="pacmanconf">PacmanConf</option>
-									<option value="pan">Pan</option>
-									<option value="parasail">ParaSail</option>
-									<option value="pawn">Pawn</option>
-									<option value="pl">Perl</option>
-									<option value="pl6">Perl6</option>
-									<option value="php">PHP</option>
-									<option value="pig">Pig</option>
-									<option value="pike">Pike</option>
-									<option value="pkgconfig">PkgConfig</option>
-									<option value="plpgsql">PL/pgSQL</option>
-									<option value="psql">PostgreSQL console (psql)</option>
-									<option value="postgres">PostgreSQL SQL dialect</option>
-									<option value="postscr">PostScript</option>
-									<option value="pov">POVRay</option>
-									<option value="ps1">PowerShell</option>
-									<option value="ps1con">PowerShell Session</option>
-									<option value="praat">Praat</option>
-									<option value="prolog">Prolog</option>
-									<option value="properties">Properties</option>
-									<option value="proto">Protocol Buffer</option>
-									<option value="puppet">Puppet</option>
-									<option value="pypy">PyPy Log</option>
-									<option value="py">Python</option>
-									<option value="py3">Python 3</option>
-									<option value="py3tb">Python 3.0 Traceback</option>
-									<option value="pycon">Python console session</option>
-									<option value="pytb">Python Traceback</option>
-									<option value="basic">QBasic</option>
-									<option value="qml">QML</option>
-									<option value="qvt">QVTO</option>
-									<option value="rkt">Racket</option>
-									<option value="ragel">Ragel</option>
-									<option value="ragel-c">Ragel in C Host</option>
-									<option value="ragel-cpp">Ragel in CPP Host</option>
-									<option value="ragel-d">Ragel in D Host</option>
-									<option value="ragel-java">Ragel in Java Host</option>
-									<option value="ragel-objc">Ragel in Objective C Host</option>
-									<option value="ragel-rb">Ragel in Ruby Host</option>
-									<option value="raw">Raw token data</option>
-									<option value="rout">RConsole</option>
-									<option value="rd">Rd</option>
-									<option value="rebol">REBOL</option>
-									<option value="red">Red</option>
-									<option value="redcode">Redcode</option>
-									<option value="registry">reg</option>
-									<option value="resource">ResourceBundle</option>
-									<option value="rst">reStructuredText</option>
-									<option value="rexx">Rexx</option>
-									<option value="rhtml">RHTML</option>
-									<option value="roboconf-graph">Roboconf Graph</option>
-									<option value="roboconf-instances">Roboconf Instances</option>
-									<option value="robotframework">RobotFramework</option>
-									<option value="spec">RPMSpec</option>
-									<option value="rql">RQL</option>
-									<option value="rsl">RSL</option>
-									<option value="rb">Ruby</option>
-									<option value="irb">Ruby irb session</option>
-									<option value="rust">Rust</option>
-									<option value="s">S</option>
-									<option value="sass">Sass</option>
-									<option value="scala">Scala</option>
-									<option value="ssp">Scalate Server Page</option>
-									<option value="scaml">Scaml</option>
-									<option value="scm">Scheme</option>
-									<option value="scilab">Scilab</option>
-									<option value="scss">SCSS</option>
-									<option value="shen">Shen</option>
-									<option value="slim">Slim</option>
-									<option value="smali">Smali</option>
-									<option value="st">Smalltalk</option>
-									<option value="smarty">Smarty</option>
-									<option value="snobol">Snobol</option>
-									<option value="sp">SourcePawn</option>
-									<option value="sparql">SPARQL</option>
-									<option value="sql">SQL</option>
-									<option value="sqlite3">sqlite3con</option>
-									<option value="squid">SquidConf</option>
-									<option value="stan">Stan</option>
-									<option value="sml">Standard ML</option>
-									<option value="sc">SuperCollider</option>
-									<option value="swift">Swift</option>
-									<option value="swig">SWIG</option>
-									<option value="sv">systemverilog</option>
-									<option value="tads3">TADS 3</option>
-									<option value="tap">TAP</option>
-									<option value="tcl">Tcl</option>
-									<option value="csh">Tcsh</option>
-									<option value="tcshcon">Tcsh Session</option>
-									<option value="tea">Tea</option>
-									<option value="termcap">Termcap</option>
-									<option value="terminfo">Terminfo</option>
-									<option value="tf">Terraform</option>
-									<option value="tex">TeX</option>
-									<option value="text">Text only</option>
-									<option value="thrift">Thrift</option>
-									<option value="todotxt">Todotxt</option>
-									<option value="rts">TrafficScript</option>
-									<option value="treetop">Treetop</option>
-									<option value="turtle">Turtle</option>
-									<option value="twig">Twig</option>
-									<option value="ts">TypeScript</option>
-									<option value="urbiscript">UrbiScript</option>
-									<option value="vala">Vala</option>
-									<option value="vbnet">VB.net</option>
-									<option value="vctreestatus">VCTreeStatus</option>
-									<option value="velocity">Velocity</option>
-									<option value="v">verilog</option>
-									<option value="vgl">VGL</option>
-									<option value="vhdl">vhdl</option>
-									<option value="vim">VimL</option>
-									<option value="x10">X10</option>
-									<option value="xml">XML</option>
-									<option value="xml+cheetah">XML+Cheetah</option>
-									<option value="xml+jinja">XML+Django/Jinja</option>
-									<option value="xml+evoque">XML+Evoque</option>
-									<option value="xml+lasso">XML+Lasso</option>
-									<option value="xml+mako">XML+Mako</option>
-									<option value="xml+myghty">XML+Myghty</option>
-									<option value="xml+php">XML+PHP</option>
-									<option value="xml+erb">XML+Ruby</option>
-									<option value="xml+smarty">XML+Smarty</option>
-									<option value="xml+velocity">XML+Velocity</option>
-									<option value="xq">XQuery</option>
-									<option value="xslt">XSLT</option>
-									<option value="xtend">Xtend</option>
-									<option value="xul+mozpreproc">XUL+mozpreproc</option>
-									<option value="yaml">YAML</option>
-									<option value="sls">YAML+Jinja</option>
-									<option value="zephir">Zephir</option>
-								</select>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1 id="page-title">{{ .Title }}</h1>
+      </div>
 
-								<select id="expiry" name="expiry" class="form-control">
-									<option value="PT5M">5 minutes</option>
-									<option value="PT1H">1 hour</option>
-									<option value="P1D">1 day</option>
-									<option value="P7D">1 week</option>
-									<option value="P30D">1 month</option>
-									<option value="P1Y">1 year</option>
-									<option value="P20Y" selected>Forever</option>
-								</select>
-								<button type="submit" class="btn btn-raised btn-primary">Submit<div class="ripple-container"></div></button>
-							</div>
-						</div>
-					</div>
-				</fieldset>
-			</form>
-			<div class="well">
-				<code>$ &lt;command&gt; | curl -X POST -F 'p=&lt;-' https://p.pantsu.cat/api</code><br/>
-				<code>POST https://p.pantsu.cat/api </code><br/>
-				<code>GET https://p.pantsu.cat/api/{PASTE} </code><br/>
-				<code>GET: https://p.pantsu.cat/p/(PASTE)/(lang)</code><br/>
-				<code>$ curl -X DEL -F 'delkey=' https://p.pantsu.cat/api</code><br/>
-				<p>Source: <a href="https://github.com/ewhal/Pastebin">Github</a></p>
-				<p>Tools: <a href="https://github.com/ewhal/scripts/blob/master/paste.sh">Paste.sh</a></p>
-			</div>
-		</div>
-		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-		<!-- Include all compiled plugins (below), or include individual files as needed -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/material.min.js" integrity="sha256-uZbIqasulk7Y9yEwknbeQ0FpF3aUhtPwuggbpvQaI8Y=" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/ripples.min.js" integrity="sha256-TY/EO/++Ug/P+fSBjaqlmtuphCBKwlP7TOnS+SGnN8g=" crossorigin="anonymous"></script>
+      <div class="well">
+        <div class="form-group is-empty form-no-margin">
+          <textarea class="form-control" rows="1" id="title" name="title" placeholder="Title" maxlength="50">{{ .PasteTitle }}</textarea>
+          <span class="help-block">Paste Title</span>
+        </div>
 
-		<script>
-			$.material.init();
-			jQuery.each(jQuery('textarea[data-autoresize]'), function() {
-				var offset = this.offsetHeight - this.clientHeight;
+        <div class="form-group is-empty form-no-margin" >
+          <textarea class="form-control" rows="20" id="paste" name="paste" placeholder="Paste" data-autoresize>{{printf "%s" .Body}}</textarea>
+          <span class="help-block">Paste your text here</span>
+        </div>
+      </div>
 
-				var resizeTextarea = function(el) {
-					jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
-				};
-				jQuery(this).on('keyup input', function() { resizeTextarea(this); });
-			});
+      <div class="row paste-actions">
+        <div class="group col-sm-3" style="margin-right:-30px">
+          <label class="control-label ">Language</label>
+          <div class="btn-group">
+            <a href="javascript:void(0)" id="button-language" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown" value="autodetect">Autodetect</a>
+            <ul class="dropdown-menu dropdown-scrollbar"  id="dropdown-language">
 
-		</script>
+              <li class="dropdown-item" value="language_autodetect" selected><a> Autodetect </a></li>
+              <li class="dropdown-item" value="language_text"><a> Text </a></li>
 
-	</body>
+              <li class="divider"></li>
+              <li class="dropdown-label">Commonly used </li>
+              {{ range $key, $value := .LangsFirst }}
+                <li class="dropdown-item" value="language_{{ $value }}" ><a> {{ $key }}</a></li>
+              {{ end }}
+
+              <li class="divider"></li>
+              <li class="dropdown-label">The rest </li>
+              {{ range $key, $value := .LangsLast }}
+                <li class="dropdown-item" value="language_{{ $value }}"><a> {{ $key }}</a></li>
+              {{ end }}
+            </ul>
+        </div>
+      </div>
+
+      <div class="group col-sm-2">
+        <label class="control-label">Expiry</label>
+        <div class="btn-group">
+          <a href="javascript:void(0)" id="button-expiry" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown" >Forever</a>
+          <ul class="dropdown-menu scrollbar" id="dropdown-expiry">
+            <li class="dropdown-item" value="expiry_300"><a>5 minutes</a></li>
+            <li class="dropdown-item" value="expiry_3600"><a>1 hour</a></li>
+            <li class="dropdown-item" value="expiry_86400"><a>1 day</a></li>
+            <li class="dropdown-item" value="expiry_604800"><a>1 week</a></li>
+            <li class="dropdown-item" value="expiry_2592000"><a>1 month</a></li>
+            <li class="dropdown-item" value="expiry_31556952"><a>1 year</a></li>
+            <li class="dropdown-item" value="expiry_0" selected><a>Forever</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="group col-sm-2">
+        <label class="control-label">Help</label>
+        <div class="btn-group">
+          <a href="javascript:void(0)" id="button-help" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown" >Help</a>
+        </div>
+      </div>
+
+      <div class="pull-right">
+        <label class="control-label ">&nbsp;</label>
+				<div class="row">
+          <button class="btn btn-raised btn-primary" id="button-save">Submit<div class="ripple-container"></button>
+				</div>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/ripples.min.js" integrity="sha256-TY/EO/++Ug/P+fSBjaqlmtuphCBKwlP7TOnS+SGnN8g=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.5.10/js/material.min.js"></script>
+
+    <!-- Sweetalert js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
+    <script>
+
+    $(document).ready(function(){
+      $.material.init();
+
+       $("#button-help").click(function(){
+
+         swal({
+           title: "Help ",
+           customClass: 'swal-wide',
+           text: "\
+             <span class='swal-bold'> Create Paste</span> \
+             <span class='swal-code'>echo '{&quot;paste&quot;: &quot;Hello FooBar&quot;}' | curl -H 'Content-Type: application/json' -d @- {{ .UrlAddress }}/api </span> \
+             \
+             <span class='swal-bold'> Delete Paste </span> \
+             <span class='swal-code'> curl -X DELETE -F 'delkey=insert-your-delete-key-here' {{ .UrlAddress }}/api/{pasteid} </span> \
+             \
+             <span class='swal-bold'> Show Paste </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id} </span> \
+             \
+             <span class='swal-bold'> Show Paste with a specific language </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id}/{language} </span> \
+             \
+             <span class='swal-bold'> Show Paste with a specific language and style </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id}/{language}/{style} </span> \
+             <span class='swal-bold'> Notes, </span> \
+             <span class='swal-code'> * Languages and Styles are standard components of the Python Syntax Highlighter (pygments)</span><br>\
+             \
+             <span class='swal-code'>Source: <a href='https://github.com/ewhal/Pastebin'>Github</a></span>\
+             <span class='swal-code'>Tools: <a href='https://github.com/ewhal/scripts/blob/master/paste.sh'>Paste.sh</a></span>",
+           html: true
+         });
+      });
+
+      // Bind dropdowns,
+      $(".dropdown-item").click(function(){
+        var action = $(this).attr("value").match(/(language|expiry)_(.*)/);
+
+        if (action.length != 3){
+          return
+        }
+        $("#button-"+action[1]).text($(this).text());
+        $("#button-"+action[1]).attr("value",action[2]);
+      });
+
+      $( "#button-save" ).click(function() {
+
+        // Construct the data,
+        var data_lang   = $("#button-language").attr("value");
+        var data_expiry = $("#button-expiry").attr("value");
+        var data_title  = $("#title").val();
+        var data_paste  = $("#paste").val();
+
+        var json_data = { expiry : data_expiry,
+                          title  : data_title,
+                          paste  : data_paste,
+                          lang   : data_lang,
+                          webreq : true };
+
+        $.ajax({
+            url: "http://localhost:9999/api",
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data:  JSON.stringify(json_data),
+            dataType: "json",
+            success: function(json){
+              window.location = json.url+"/"+data_lang
+            },
+              error: function(json){
+              sweetAlert("", json.responseText, "error");
+            }
+          });
+      });
+    });
+    </script>
+  </body>
 </html>
