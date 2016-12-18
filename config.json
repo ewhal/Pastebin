@@ -1,0 +1,16 @@
+{
+  "address": "http://localhost:9999",
+  "dbhost": "",
+  "dbname": "pastebin.db",
+  "dbtable": "pastebin",
+  "dbtype": "sqlite3",
+  "dbport": "",
+  "dbuser":"",
+  "dbpassword":"",
+  "displayname": "MyCompany",
+  "listenaddress": "localhost",
+  "listenport": "9999",
+  "shorturllength": "5",
+  "highlighter":"./highlighter-wrapper.py",
+  "googleAPIKey":"insert-if-you-want-goo.gl/addr"
+}
