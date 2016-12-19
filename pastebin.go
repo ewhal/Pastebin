@@ -191,7 +191,7 @@ func getSupportedLangs() {
 	arg := "getlexers"
 	out, err := exec.Command(configuration.Highlighter, arg).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, string(out))
 	}
 
 	// Loop lexers and add them to respectively map,

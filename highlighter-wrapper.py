@@ -1,6 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
-import pygments
+try:
+    import pygments
+except ImportError:
+    print(" Please install python pygments module")
+
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.formatters import HtmlFormatter
@@ -65,13 +69,13 @@ def usage(err=0):
 def get_styles():
     item = pygments.styles.get_all_styles()
     for items in item:
-        print items
+        print(items)
     sys.exit(0)
 
 def get_lexers():
     item = pygments.lexers.get_all_lexers()
     for items in item:
-        print items[0]+";"+items[1][0]
+        print(items[0]+";"+items[1][0])
     sys.exit(0)
 
 
