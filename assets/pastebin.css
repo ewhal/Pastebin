@@ -1,0 +1,218 @@
+
+
+/* * *
+/* The labels around the paste-box */
+
+#title{
+  margin-bottom: -3px;
+}
+
+.urlshortener, .expiry_label{
+  font-size : 11px;
+}
+
+.expiry_label{
+  float : right;
+}
+
+.expiry_date{
+  font-weight : bold
+}
+
+
+
+
+/* * *
+/* The actual paste-box */
+
+pre {
+  background     : none;
+  border         : none;
+  border-radius  : 0px;
+  font-family    : 'Courier New', Courier, monospace;
+  font-size      : 12px;
+  font-weight    : normal;
+  letter-spacing : 0.015em;
+  line-height    : 14px;
+  margin         : 5px 5px 5px 5px;
+  min-height     : 250px;
+}
+
+.code-row {
+ display       : block;
+ font-size     : 14px;
+ font-weight   : lighter;
+}
+
+.codenum-row {
+ display       : block;
+ font-size     : 14px;
+ font-weight   : lighter;
+}
+
+.code{
+  width : 10000px;
+}
+
+.highlight{
+  border        : solid 1px #ccc;
+  border-radius : 6px;
+}
+
+.highlighttable{
+  margin-bottom : 8px;
+}
+
+.form-no-margin{
+  margin-top: 0px;
+}
+
+.linenodiv {
+  background    : none;
+  border        : solid 1px #ccc;
+  border-radius : 6px;
+  display       : none;
+  padding-right : 0px!important;
+}
+
+.toggles{
+  width : 100px;
+}
+
+label.togglerows{
+  text-align : left!important;
+  cursor     : default!important;
+}
+
+.text{
+  background    : #f0f3f3;
+  font-size     : 10px;
+  line-height   : 150%;
+  margin-bottom : 10px;
+  padding-left  : 14px;
+  padding-top   : 7px;
+}
+
+.well{
+  font-size   : 11px;
+  padding-top : 25px!important;
+  /*padding-top: 10px; resize: both;"*/
+}
+
+div#paste.well{
+  border-radius : 6px;
+}
+
+
+
+
+/* * *
+/* Button row under paste box */
+
+label {
+  font-weight: bold!important;
+}
+
+.btn {
+  font-size : 12px;
+}
+
+.paste-actions{
+  margin-bottom : 20px;
+  margin-right  : 0px;
+}
+
+.paste-actions .control-label{
+  display         : inline-block;
+  padding-right   : 10px;
+  vertical-align  : -webkit-baseline-middle;
+}
+
+.paste-actions .btn{
+  width : 230px;
+}
+
+.paste-actions .pull-right .btn{
+  width : 120px;
+}
+
+#button-language{
+  text-align : left;
+}
+
+#dropdown-language, #dropdown-style, #dropdown-expiry{
+  bottom : 100% !important;
+  top    : auto !important;
+}
+
+#dropdown-language{
+  width : 230px;
+}
+
+#button-style, #button-expiry{
+  width : 160px;
+  text-align: left;
+}
+
+#button-help{
+  width : 140px;
+  text-align: left;
+}
+
+#dropdown-style{
+  width : 110px;
+}
+
+#toggle-numbers, #toggle-hover-rows{
+  margin-top : 25px;
+}
+
+div.row {
+  margin-right : 0px;
+}
+
+.dropdown-scrollbar {
+  height      : auto;
+  max-height  : 450px;
+  overflow-x  : hidden;
+  overflow-y  : auto;
+}
+
+.dropdown-scrollbar::-webkit-scrollbar             { width : 10px; background-color : #f7f7f7;}
+.dropdown-scrollbar::-webkit-scrollbar-thumb       { background-color : #ccc; border-radius : 4px;}
+.dropdown-scrollbar::-webkit-scrollbar-thumb:hover { background-color : #aaa;}
+
+.dropdown-item:hover{
+  background-color : #f7f7f7;
+}
+
+.dropdown-item{
+  cursor : pointer;
+}
+
+.dropdown-label{
+  font-size     : 12px;
+  font-weight   : bold;
+  padding-left  : 10px;
+}
+
+.swal-wide{
+  width:850px !important;
+  margin-left: -400px;
+}
+
+.swal-code {
+  display: block;
+  font-size: 14px;
+  margin-left: 8px;
+  text-align: left;
+}
+
+.swal-bold {
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  text-align: left;
+  display: block;
+  margin-left: 8px;
+}
