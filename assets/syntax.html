@@ -2,59 +2,254 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>%s</title>
+
+		<title>{{.Title}}</title>
 
 		<!-- Material Design fonts -->
 		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
 		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/bootstrap-material-design.min.css" integrity="sha256-j3CLSRG31GkOu6kaeLh7XsRgL2YNvRl9aOtXoAYt320=" crossorigin="anonymous">
-
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/css/ripples.min.css" integrity="sha256-+Og2qJI9qzvKYwhGo/LYXg0FzE1BhEQfDsUSjKXQ3Bg=" crossorigin="anonymous">
 
-
-		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-		<!--[if lt IE 9]>
-		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-		<![endif]-->
+    <!-- pastebin stylesheet -->
+    <link rel="stylesheet" type="text/css" href="/assets/pastebin.css">
 	</head>
+
 	<body>
 		<div class="container">
 			<div class="page-header">
-				<h1>%s</h1>
-			</div>
-			<div class="col-md-13">
-				<div class="well" style="padding-top: 10px;">
-						%s
-				</div>
+				<h1 id="title">{{.Title}}</h1>
+          <div class="urlshortener">
+            <a id="urlshortener">&nbsp;</a>
+          </div>
 			</div>
 
-			<div class="pull-right">
-				<div class="row" style="margin-right: 0px;">
-					<a href="%s" class="btn btn-raised btn-primary">Home</a>
-					<a href="%s" class="btn btn-raised btn-primary">Download</a>
-					<a href="%s" class="btn btn-raised btn-primary">Raw</a>
-					<a href="%s" class="btn btn-raised btn-primary">Clone</a>
-				</div>
-			
-			</div>
-		</div>
+          <span class="expiry_label">This paste expires :
+            <span class="expiry_date" id="expiry_date">{{.Expiry}}</span>
+          </span>
+          <br>
+
+          <div class="well" id="paste">{{ .Body }}
+            <span id="wrapper-err">{{.WrapperErr}}</span>
+          </div>
+
+          <div class="row paste-actions">
+            <div class="group col-sm-3" style="margin-right:-30px">
+              <label class="control-label ">Language</label>
+              <div class="btn-group">
+                <a href="javascript:void(0)" id="button-language" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown">{{.Lang}}</a>
+                <ul class="dropdown-menu dropdown-scrollbar"  id="dropdown-language">
+
+                  <li class="dropdown-item" value="lang_autodetect"><a> Autodetect </a></li>
+                  <li class="dropdown-item" value="lang_text"><a> Text </a></li>
+
+                  <li class="divider"></li>
+                  <li class="dropdown-label">Commonly used </li>
+                  {{ range $key, $value := .LangsFirst }}
+                    <li class="dropdown-item" value="lang_{{ $value }}" ><a> {{ $key }}</a></li>
+                  {{ end }}
+
+                  <li class="divider"></li>
+                  <li class="dropdown-label">The rest </li>
+                  {{ range $key, $value := .LangsLast }}
+                    <li class="dropdown-item" value="lang_{{ $value }}"><a> {{ $key }}</a></li>
+                  {{ end }}
+                </ul>
+              </div>
+            </div>
+
+            <div class="group col-sm-2">
+              <label class="control-label">Style</label>
+              <div class="btn-group">
+                <a href="javascript:void(0)" id="button-style" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown">{{.Style}}</a>
+                <ul class="dropdown-menu dropdown-scrollbar" id="dropdown-style">
+                  {{ range $key, $value := .SupportedStyles }}
+                    <li class="dropdown-item" value="style_{{ $key }}"><a>{{ $value }}</a></li>
+                  {{ end }}
+                </ul>
+              </div>
+            </div>
+
+            <div class="group col-sm-2 toggles">
+              <div class="togglebutton">
+                <label class="control-label togglerows">Row Numbers</label><br>
+                <label><input type="checkbox" id="toggle-numbers"></label>
+              </div>
+            </div>
+
+            <div class="group col-sm-2 toggles">
+              <div class="togglebutton">
+                <label class="control-label togglerows">Row Highlightning</label><br>
+                <label><input type="checkbox" id="toggle-hover-rows" checked></label>
+              </div>
+            </div>
+
+            <div class="pull-right">
+              <label class="control-label ">&nbsp;</label>
+				      <div class="row">
+					      <a href="{{.UrlHome}}"      class="btn btn-raised btn-primary">Home</a>
+					      <a href="{{.UrlDownload}}"  class="btn btn-raised btn-primary">Download</a>
+					      <a href="{{.UrlRaw}}"       class="btn btn-raised btn-primary">Raw</a>
+                <a href="{{.UrlClone}}"     class="btn btn-raised btn-primary">Clone</a>
+				      </div>
+            </div>
+
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-		<!-- Include all compiled plugins (below), or include individual files as needed -->
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/material.min.js" integrity="sha256-uZbIqasulk7Y9yEwknbeQ0FpF3aUhtPwuggbpvQaI8Y=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/bootstrap.material-design/0.5.10/js/ripples.min.js" integrity="sha256-TY/EO/++Ug/P+fSBjaqlmtuphCBKwlP7TOnS+SGnN8g=" crossorigin="anonymous"></script>
-		<script>
-			$.material.init();
-		</script>
 
+    <script>
+			$.material.init();
+
+      $(document).ready(function(){
+
+        // First, create our rows and toggle them,
+        create_hover_rows();
+        toggle_hover_rows();
+
+        // Bind toggles,
+        $( "#toggle-numbers" ).click(function() {
+          toggle_rows();
+        });
+
+        $( "#toggle-hover-rows" ).click(function() {
+          toggle_hover_rows();
+        });
+
+        // Bind dropdowns,
+        $(".dropdown-item").click(function(){
+          var action = $(this).attr("value").match(/(lang|style)_(.*)/);
+
+          if (action.length != 3){
+            return
+          }
+
+          var todo    = action[1]
+          var value   = action[2]
+          var pasteid = window.location.pathname.split('/')[2];
+
+          if (todo == "lang"){
+            $("#button-language").text(value);
+          }else{
+            $("#button-style").text(value);
+          }
+
+          // Construct the data,
+          var sel_lang  = $("#button-language").text();
+          var sel_style = $("#button-style").text();
+          var json_data = { style: sel_style, lang:sel_lang, webreq: true};
+
+          $.ajax({
+            url: "http://localhost:9999/api/"+pasteid,
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data:  JSON.stringify(json_data),
+            dataType: "json",
+            success: function(json){
+              $(".well").replaceWith("<div class='well' id=\"paste\">"+json.paste+"<span id=\"wrapper-err\">"+json.extra+"</span></div>");
+              create_hover_rows();
+              if ($("#toggle-hover-rows").is(':checked')){
+                toggle_hover_rows();
+              }
+              if ($("#toggle-numbers").is(':checked')){
+                toggle_rows();
+              }
+            },
+              error: function(json){
+            }
+          });
+        });
+
+        $.ajax({
+          url: "https://www.googleapis.com/urlshortener/v1/url?key={{.GoogleAPIKey}}",
+          type: 'POST',
+          contentType: "application/json; charset=utf-8",
+          data :  JSON.stringify({longUrl:window.location.href}),
+          dataType: "json",
+          success: function(json){
+             $('#urlshortener').text(json.id)
+             $('#urlshortener').attr("href",json.id)
+          },
+          error: function(json){
+          }
+        });
+      });
+
+
+      function toggle_rows(){
+        $(".linenodiv").toggle();
+        if ($("#toggle-numbers").is(':checked')){
+          $(".highlight").css("border-left", "0px");
+          $(".highlight").css("border-bottom-left-radius", "0px");
+          $(".highlight").css("border-top-left-radius", "0px");
+          $(".linenodiv").css("border-bottom-right-radius", "0px");
+          $(".linenodiv").css("border-top-right-radius", "0px");
+        }else{
+          $(".highlight").css("border-left", "1px solid #ccc");
+          $(".highlight").css("border-bottom-left-radius", "6px");
+          $(".highlight").css("border-top-left-radius", "6px");
+        }
+      }
+
+
+      function create_hover_rows(){
+
+        var rownum_data = $('pre').html().split(/\n/);
+        var code_data = $('pre:eq(1)').html().split(/[\n\r]/);
+        var rownum_data_new = "";
+        var code_data_new   = "";
+
+        // Loop each row and add span and class,
+        for(var x=0;x<rownum_data.length;x++) {
+          if (code_data[x] == ""){
+            code_data[x] = "\n";
+          }
+
+          rownum_data_new += "<span class='codenum-row'>"+rownum_data[x]+"</span>"
+          code_data_new   += "<span class='code-row'>"+code_data[x]+"</span>"
+        }
+
+        // Replace with new data,
+        $('pre:eq(0)').html(rownum_data_new);
+        $('pre:eq(1)').html(code_data_new);
+      }
+
+
+      function toggle_hover_rows(){
+
+        if ($("#toggle-hover-rows").is(':checked')){
+          $(".code-row").hover(
+            function() {
+              $(this).css("background-color", "rgba(196,196,196,0.5)");
+            },
+            function() {
+              var bg = $(".highlight").css("background-color");
+              $(this).css("background-color", bg);
+            });
+        }else{
+          $(".code-row").unbind('mouseenter').unbind('mouseleave')
+        }
+      }
+
+
+      function get_lang(){
+        var str = $('#wrapper-err').text();
+        var arr = str.match(/Lexer guessed :: (.*)$/);
+
+        // If we fail for some reason to parse the output, set it to autodetect
+        if (arr.length != 2){
+          return "autodetect";
+        }
+
+        return arr[1];
+      }
+		</script>
 	</body>
 </html>
 
