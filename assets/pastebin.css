@@ -33,20 +33,20 @@ pre {
   font-size      : 12px;
   font-weight    : normal;
   letter-spacing : 0.015em;
-  line-height    : 10px;
+  line-height    : 14px;
   margin         : 5px 5px 5px 5px;
   min-height     : 250px;
 }
 
 .code-row {
  display       : block;
- font-size     : 10px;
+ font-size     : 14px;
  font-weight   : lighter;
 }
 
 .codenum-row {
  display       : block;
- font-size     : 10px;
+ font-size     : 14px;
  font-weight   : lighter;
 }
 
