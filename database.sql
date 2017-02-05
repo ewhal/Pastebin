@@ -5,13 +5,13 @@ CREATE TABLE `pastebin` (
   `data` longtext,
   `delkey` char(40) default NULL,
   `expiry` int,
-  `userid` int,
+  `userid` varchar(255),
   PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `accounts` (
-  `id` varchar(30) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `pass` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  `password` varchar(255) NOT NULL,
+  `key` varchar(255) NOT NULL,
+  PRIMARY KEY (`key`)
 );

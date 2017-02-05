@@ -3,6 +3,7 @@
   "dbhost": "",
   "dbname": "pastebin.db",
   "dbtable": "pastebin",
+  "dbaccountstable": "accounts",
   "dbtype": "sqlite3",
   "dbport": "",
   "dbuser":"",

@@ -22,6 +22,8 @@ install:
 	go get github.com/gorilla/mux
 	go get github.com/go-sql-driver/mysql
 	go get github.com/lib/pq
+	go get golang.org/x/crypto/bcrypt
+	go get github.com/gorilla/securecookie
 
 test: install
 	go install $(GOFLAGS) ./...

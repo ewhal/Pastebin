@@ -30,25 +30,30 @@ import (
 
 	// For url routing
 	"github.com/gorilla/mux"
+	// securecookie for cookie handling
+	"github.com/gorilla/securecookie"
+	// bcrypt for password hashing
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Configuration struct,
 type Configuration struct {
-	Address        string    `json:"address"`    // Url to to the pastebin
-	DBHost         string    `json:"dbhost"`     // Name of your database host
-	DBName         string    `json:"dbname"`     // Name of your database
-	DBPassword     string    `json:"dbpassword"` // The password for the database user
-	DBPlaceHolder  [6]string // ? / $[i] Depending on db driver.
-	DBPort         string    `json:"dbport"`                // Port of the database
-	DBTable        string    `json:"dbtable"`               // Name of the table in the database
-	DBType         string    `json:"dbtype"`                // Type of database
-	DBUser         string    `json:"dbuser"`                // The database user
-	DisplayName    string    `json:"displayname"`           // Name of your pastebin
-	GoogleAPIKey   string    `json:"googleapikey"`          // Your google api key
-	Highlighter    string    `json:"highlighter"`           // The name of the highlighter.
-	ListenAddress  string    `json:"listenaddress"`         // Address that pastebin will bind on
-	ListenPort     string    `json:"listenport"`            // Port that pastebin will listen on
-	ShortUrlLength int       `json:"shorturllength,string"` // Length of the generated short urls
+	Address         string    `json:"address"`    // Url to to the pastebin
+	DBHost          string    `json:"dbhost"`     // Name of your database host
+	DBName          string    `json:"dbname"`     // Name of your database
+	DBPassword      string    `json:"dbpassword"` // The password for the database user
+	DBPlaceHolder   [7]string // ? / $[i] Depending on db driver.
+	DBPort          string    `json:"dbport"`                // Port of the database
+	DBTable         string    `json:"dbtable"`               // Name of the table in the database
+	DBAccountsTable string    `json:"dbaccountstable"`       // Name of the table in the database
+	DBType          string    `json:"dbtype"`                // Type of database
+	DBUser          string    `json:"dbuser"`                // The database user
+	DisplayName     string    `json:"displayname"`           // Name of your pastebin
+	GoogleAPIKey    string    `json:"googleapikey"`          // Your google api key
+	Highlighter     string    `json:"highlighter"`           // The name of the highlighter.
+	ListenAddress   string    `json:"listenaddress"`         // Address that pastebin will bind on
+	ListenPort      string    `json:"listenport"`            // Port that pastebin will listen on
+	ShortUrlLength  int       `json:"shorturllength,string"` // Length of the generated short urls
 }
 
 // This struct is used for responses.
@@ -70,14 +75,15 @@ type Response struct {
 
 // This struct is used for indata when a request is being made to the pastebin.
 type Request struct {
-	DelKey string `json:"delkey"`        // The delkey that is used to delete paste
-	Expiry int64  `json:"expiry,string"` // An expiry date
-	Id     string `json:"id"`            // The id of the paste
-	Lang   string `json:"lang"`          // The language of the paste
-	Paste  string `json:"paste"`         // The actual pase
-	Style  string `json:"style"`         // The style of the paste
-	Title  string `json:"title"`         // The title of the paste
-	WebReq bool   `json:"webreq"`        // If its a webrequest or not
+	DelKey  string `json:"delkey"`        // The delkey that is used to delete paste
+	Expiry  int64  `json:"expiry,string"` // An expiry date
+	Id      string `json:"id"`            // The id of the paste
+	Lang    string `json:"lang"`          // The language of the paste
+	Paste   string `json:"paste"`         // The actual pase
+	Style   string `json:"style"`         // The style of the paste
+	Title   string `json:"title"`         // The title of the paste
+	UserKey string `json:"key"`           // The title of the paste
+	WebReq  bool   `json:"webreq"`        // If its a webrequest or not
 }
 
 // This struct is used for generating pages.
@@ -98,11 +104,18 @@ type Page struct {
 	UrlHome         string
 	UrlRaw          string
 	WrapperErr      string
+	UserKey         string
+}
+type Pastes struct {
+	Response []Response
 }
 
 // Template pages,
 var templates = template.Must(template.ParseFiles("assets/index.html",
-	"assets/syntax.html"))
+	"assets/syntax.html",
+	"assets/register.html",
+	"assets/pastes.html",
+	"assets/login.html"))
 
 // Global variables, *shrug*
 var configuration Configuration
@@ -112,6 +125,12 @@ var debugLogger *log.Logger
 var listOfLangsFirst map[string]string
 var listOfLangsLast map[string]string
 var listOfStyles map[string]string
+
+// generate new random cookie keys
+var cookieHandler = securecookie.New(
+	securecookie.GenerateRandomKey(64),
+	securecookie.GenerateRandomKey(32),
+)
 
 //
 // Functions below,
@@ -261,7 +280,7 @@ func checkArgs() {
 func getDBHandle() *sql.DB {
 
 	var dbinfo string
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
 		configuration.DBPlaceHolder[i] = "?"
 	}
 
@@ -280,7 +299,7 @@ func getDBHandle() *sql.DB {
 			configuration.DBUser,
 			configuration.DBPassword,
 			configuration.DBName)
-		for i := 0; i < 6; i++ {
+		for i := 0; i < 7; i++ {
 			configuration.DBPlaceHolder[i] = "$" + strconv.Itoa(i+1)
 		}
 
@@ -365,13 +384,14 @@ func shaPaste(paste string) string {
 // paste, the actual paste data as a string,
 // expiry, the epxpiry date in epoch time as an int64
 // Returns the Response struct
-func savePaste(title string, paste string, expiry int64) Response {
+func savePaste(title string, paste string, expiry int64, user_key string) Response {
 
 	var id, hash, delkey, url string
 
 	// Escape user input,
 	paste = html.EscapeString(paste)
 	title = html.EscapeString(title)
+	user_key = html.EscapeString(user_key)
 
 	// Hash paste data and query database to see if paste exists
 	sha := shaPaste(paste)
@@ -419,15 +439,15 @@ func savePaste(title string, paste string, expiry int64) Response {
 
 	// This is needed since mysql/postgres uses different placeholders,
 	var dbQuery string
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
 		dbQuery += configuration.DBPlaceHolder[i] + ","
 	}
 	dbQuery = dbQuery[:len(dbQuery)-1]
 
-	stmt, err := dbHandle.Prepare("INSERT INTO " + configuration.DBTable + " (id,title,hash,data,delkey,expiry)values(" + dbQuery + ")")
+	stmt, err := dbHandle.Prepare("INSERT INTO " + configuration.DBTable + " (id,title,hash,data,delkey,expiry,userid)values(" + dbQuery + ")")
 	checkErr(err)
 
-	_, err = stmt.Exec(id, title, sha, paste, delKey, expiry)
+	_, err = stmt.Exec(id, title, sha, paste, delKey, expiry, user_key)
 	checkErr(err)
 
 	loggy(fmt.Sprintf("Sucessfully inserted data at id '%s', title '%s', expiry '%v' and data \n \n* * * *\n\n%s\n\n* * * *\n",
@@ -453,6 +473,9 @@ func savePaste(title string, paste string, expiry int64) Response {
 func DelHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var inData Request
+	loggy(fmt.Sprintf("Recieving request to delete a paste, trying to parse indata."))
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&inData)
 
 	inData.Id = vars["pasteId"]
 
@@ -516,7 +539,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := savePaste(inData.Title, inData.Paste, inData.Expiry)
+	p := savePaste(inData.Title, inData.Paste, inData.Expiry, inData.UserKey)
 
 	d, _ = json.MarshalIndent(p, "DEBUG : ", "  ")
 	loggy(fmt.Sprintf("Returning json data to requester \nDEBUG : %s", d))
@@ -802,6 +825,7 @@ func CloneHandler(w http.ResponseWriter, r *http.Request) {
 		Body:       template.HTML(p.Paste),
 		PasteTitle: "Copy of " + p.Title,
 		Title:      "Copy of " + p.Title,
+		UserKey:    getUserKey(r),
 	}
 
 	err := templates.ExecuteTemplate(w, "index.html", page)
@@ -835,6 +859,209 @@ func RawHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, p.Paste)
 }
 
+// loginHandler
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		err := templates.ExecuteTemplate(w, "login.html", "")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	case "POST":
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+		email_escaped := html.EscapeString(email)
+
+		// Query database if id exists and if it does call generateName again
+		var hashedPassword []byte
+		err := dbHandle.QueryRow("select password from "+configuration.DBAccountsTable+
+			" where email="+configuration.DBPlaceHolder[0], email_escaped).
+			Scan(&hashedPassword)
+
+		switch {
+		case err == sql.ErrNoRows:
+			loggy(fmt.Sprintf("Email '%s' is not taken.", email))
+			http.Redirect(w, r, "/register", 302)
+		case err != nil:
+			debugLogger.Println("   Database error : " + err.Error())
+			os.Exit(1)
+		default:
+			loggy(fmt.Sprintf("Account '%s' exists.", email))
+		}
+
+		// compare bcrypt hash to userinput password
+		err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+		if err == nil {
+			// prepare cookie
+			value := map[string]string{
+				"email": email,
+			}
+			// encode variables into cookie
+			if encoded, err := cookieHandler.Encode("session", value); err == nil {
+				cookie := &http.Cookie{
+					Name:  "session",
+					Value: encoded,
+					Path:  "/",
+				}
+				// set user cookie
+				http.SetCookie(w, cookie)
+			}
+			loggy(fmt.Sprintf("Successfully logged account '%s' in.", email))
+			// Redirect to home page
+			http.Redirect(w, r, "/", 302)
+		}
+		// Redirect to login page
+		http.Redirect(w, r, "/login", 302)
+
+	}
+
+}
+
+func pastesHandler(w http.ResponseWriter, r *http.Request) {
+
+	key := getUserKey(r)
+	b := Pastes{Response: []Response{}}
+
+	rows, err := dbHandle.Query("select id, title, delkey, data from "+
+		configuration.DBTable+" where userid="+
+		configuration.DBPlaceHolder[0], key)
+	switch {
+	case err == sql.ErrNoRows:
+		loggy("Pasted data is not in the database, will insert it.")
+	case err != nil:
+		debugLogger.Println("   Database error : " + err.Error())
+		os.Exit(1)
+	default:
+		for rows.Next() {
+			var id, title, url, delKey, data string
+			rows.Scan(&id, &title, &delKey, &data)
+			url = configuration.Address + "/p/" + id
+			res := Response{
+				Id:     id,
+				Title:  title,
+				Url:    url,
+				Size:   len(data),
+				DelKey: delKey}
+
+			b.Response = append(b.Response, res)
+
+		}
+		rows.Close()
+	}
+
+	err = templates.ExecuteTemplate(w, "pastes.html", &b)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// loggedIn returns true if cookie exists
+func getUserKey(r *http.Request) string {
+	cookie, err := r.Cookie("session")
+	cookieValue := make(map[string]string)
+	if err != nil {
+		return ""
+	}
+	err = cookieHandler.Decode("session", cookie.Value, &cookieValue)
+	if err != nil {
+		return ""
+	}
+	email := cookieValue["email"]
+	// Query database if id exists and if it does call generateName again
+	var user_key string
+	err = dbHandle.QueryRow("select key from "+configuration.DBAccountsTable+
+		" where email="+configuration.DBPlaceHolder[0], email).
+		Scan(&user_key)
+
+	switch {
+	case err == sql.ErrNoRows:
+		loggy(fmt.Sprintf("Key does not exist for user '%s'", email))
+	case err != nil:
+		debugLogger.Println("   Database error : " + err.Error())
+		os.Exit(1)
+	default:
+		loggy(fmt.Sprintf("User key found for user '%s'", email))
+	}
+
+	return user_key
+
+}
+
+// registerHandler
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		err := templates.ExecuteTemplate(w, "register.html", "")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	case "POST":
+		email := r.FormValue("email")
+		pass := r.FormValue("password")
+		email_escaped := html.EscapeString(email)
+
+		loggy(fmt.Sprintf("Attempting to create account '%s', checking if it's already taken in the database",
+			email))
+
+		// Query database if id exists and if it does call generateName again
+		var email_taken string
+		err := dbHandle.QueryRow("select email from "+configuration.DBAccountsTable+
+			" where email="+configuration.DBPlaceHolder[0], email_escaped).
+			Scan(&email_taken)
+
+		switch {
+		case err == sql.ErrNoRows:
+			loggy(fmt.Sprintf("Email '%s' is not taken, will use it.", email))
+		case err != nil:
+			debugLogger.Println("   Database error : " + err.Error())
+			os.Exit(1)
+		default:
+			loggy(fmt.Sprintf("Email '%s' is taken.", email_taken))
+			http.Redirect(w, r, "/register", 302)
+		}
+
+		// This is needed since mysql/postgres uses different placeholders,
+		var dbQuery string
+		for i := 0; i < 3; i++ {
+			dbQuery += configuration.DBPlaceHolder[i] + ","
+		}
+		dbQuery = dbQuery[:len(dbQuery)-1]
+
+		stmt, err := dbHandle.Prepare("INSERT into " + configuration.DBAccountsTable + "(email, password, key) values(" + dbQuery + ")")
+		checkErr(err)
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+		checkErr(err)
+
+		key := uniuri.NewLen(24)
+
+		_, err = stmt.Exec(email_escaped, hashedPassword, key)
+		checkErr(err)
+
+		loggy(fmt.Sprintf("Successfully created account '%s' with hashed password '%s'",
+			email,
+			hashedPassword))
+		stmt.Close()
+		checkErr(err)
+		http.Redirect(w, r, "/login", 302)
+
+	}
+
+}
+
+// logoutHandler destroys cookie data and redirects to root
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name:   "session",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", 301)
+
+}
+
 // RootHandler handles generating the root page
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -843,6 +1070,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 		LangsLast:  listOfLangsLast,
 		Title:      configuration.DisplayName,
 		UrlAddress: configuration.Address,
+		UserKey:    getUserKey(r),
 	}
 
 	err := templates.ExecuteTemplate(w, "index.html", p)
@@ -906,6 +1134,10 @@ func main() {
 
 	router.HandleFunc("/raw/{pasteId}", RawHandler).Methods("GET")
 	router.HandleFunc("/clone/{pasteId}", CloneHandler).Methods("GET")
+	router.HandleFunc("/login", loginHandler)
+	router.HandleFunc("/logout", logoutHandler)
+	router.HandleFunc("/register", registerHandler)
+	router.HandleFunc("/pastes", pastesHandler).Methods("GET")
 
 	router.HandleFunc("/download/{pasteId}", DownloadHandler).Methods("GET")
 	router.HandleFunc("/assets/pastebin.css", serveCss).Methods("GET")

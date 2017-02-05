@@ -88,9 +88,9 @@
 
       <div class="pull-right">
         <label class="control-label ">&nbsp;</label>
-				<div class="row">
+        <div class="row">
           <button class="btn btn-raised btn-primary" id="button-save">Submit<div class="ripple-container"></button>
-				</div>
+          </div>
       </div>
     </div>
 
@@ -119,19 +119,29 @@
              <span class='swal-bold'> Create Paste</span> \
              <span class='swal-code'>echo '{&quot;paste&quot;: &quot;Hello FooBar&quot;}' | curl -H 'Content-Type: application/json' -d @- {{ .UrlAddress }}/api </span> \
              \
+             <span class='swal-bold'> Create Paste</span> \
+             <span class='swal-code'>echo '{&quot;paste&quot;: &quot;Hello FooBar&quot;,&quot;key&quot;: &quot;{{.UserKey}}&quot;}' | curl -H 'Content-Type: application/json' -d @- {{ .UrlAddress }}/api </span> \
+             \
              <span class='swal-bold'> Delete Paste </span> \
              <span class='swal-code'> curl -X DELETE -F 'delkey=insert-your-delete-key-here' {{ .UrlAddress }}/api/{pasteid} </span> \
              \
              <span class='swal-bold'> Show Paste </span> \
-             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id} </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{paste-id} </span> \
              \
              <span class='swal-bold'> Show Paste with a specific language </span> \
-             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id}/{language} </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{paste-id}/{language} </span> \
              \
              <span class='swal-bold'> Show Paste with a specific language and style </span> \
-             <span class='swal-code'> {{ .UrlAddress }}/p/{passte-id}/{language}/{style} </span> \
+             <span class='swal-code'> {{ .UrlAddress }}/p/{paste-id}/{language}/{style} </span> \
              <span class='swal-bold'> Notes, </span> \
              <span class='swal-code'> * Languages and Styles are standard components of the Python Syntax Highlighter (pygments)</span><br>\
+             \
+             <span class='swal-bold'>User accounts  </span> \
+             <span class='swal-code'>If you would like to save your pastes please register for an account at <a href="/register">register</a></span><br>\
+             <span class='swal-code'>To view and delete your pastes:<a href="/pastes">register</a></span><br>\
+             \
+             <span class='swal-bold'> API key, Keep secret </span> \
+             <span class='swal-code' id='key'>{{.UserKey}}</span><br>\
              \
              <span class='swal-code'>Source: <a href='https://github.com/ewhal/Pastebin'>Github</a></span>\
              <span class='swal-code'>Tools: <a href='https://github.com/ewhal/scripts/blob/master/paste.sh'>Paste.sh</a></span>",
@@ -157,11 +167,13 @@
         var data_expiry = $("#button-expiry").attr("value");
         var data_title  = $("#title").val();
         var data_paste  = $("#paste").val();
+        var user_key  = {{.UserKey}}; 
 
         var json_data = { expiry : data_expiry,
                           title  : data_title,
                           paste  : data_paste,
                           lang   : data_lang,
+                          userkey:  user_key,
                           webreq : true };
 
         $.ajax({
