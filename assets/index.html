@@ -178,7 +178,7 @@
                           webreq : true };
 
         $.ajax({
-            url: "http://localhost:9999/api",
+            url: "{{.UrlAddress}}" + "/api",
             type: 'POST',
             contentType: "application/json; charset=utf-8",
             data:  JSON.stringify(json_data),
