@@ -993,25 +993,25 @@ func getUserKey(r *http.Request) string {
 func generateKey() string {
 
 	// Use uniuri to generate random string
-	id := uniuri.NewLen(20)
+	key := uniuri.NewLen(20)
 	loggy(fmt.Sprintf("Generated id is '%s', checking if it's already taken in the database",
-		id))
+		key))
 
 	// Query database if id exists and if it does call generateName again
 	var key_taken string
 	err := dbHandle.QueryRow("select key from "+configuration.DBAccountsTable+
-		" where key="+configuration.DBPlaceHolder[0], id).
+		" where key="+configuration.DBPlaceHolder[0], key).
 		Scan(&key_taken)
 
 	switch {
 	case err == sql.ErrNoRows:
-		loggy(fmt.Sprintf("Key '%s' is not taken, will use it.", id))
+		loggy(fmt.Sprintf("Key '%s' is not taken, will use it.", key))
 	case err != nil:
 		debugLogger.Println("   Database error : " + err.Error())
 		os.Exit(1)
 	default:
-		loggy(fmt.Sprintf("Key '%s' is taken, generating new id.", id_taken))
-		generateName()
+		loggy(fmt.Sprintf("Key '%s' is taken, generating new key.", key_taken))
+		generateKey()
 	}
 
 	return key
