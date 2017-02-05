@@ -987,6 +987,36 @@ func getUserKey(r *http.Request) string {
 
 }
 
+// generateKey generates a short url with the length defined in main config
+// The function calls itself recursively until an id that doesn't exist is found
+// Returns the id
+func generateKey() string {
+
+	// Use uniuri to generate random string
+	id := uniuri.NewLen(20)
+	loggy(fmt.Sprintf("Generated id is '%s', checking if it's already taken in the database",
+		id))
+
+	// Query database if id exists and if it does call generateName again
+	var key_taken string
+	err := dbHandle.QueryRow("select key from "+configuration.DBAccountsTable+
+		" where key="+configuration.DBPlaceHolder[0], id).
+		Scan(&key_taken)
+
+	switch {
+	case err == sql.ErrNoRows:
+		loggy(fmt.Sprintf("Key '%s' is not taken, will use it.", id))
+	case err != nil:
+		debugLogger.Println("   Database error : " + err.Error())
+		os.Exit(1)
+	default:
+		loggy(fmt.Sprintf("Key '%s' is taken, generating new id.", id_taken))
+		generateName()
+	}
+
+	return key
+}
+
 // registerHandler
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -1033,7 +1063,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 		checkErr(err)
 
-		key := uniuri.NewLen(24)
+		key := generateKey()
 
 		_, err = stmt.Exec(email_escaped, hashedPassword, key)
 		checkErr(err)
